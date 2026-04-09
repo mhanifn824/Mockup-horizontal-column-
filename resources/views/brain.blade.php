@@ -7,14 +7,13 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script type="module" src="https://cdn.skypack.dev/@hotwired/turbo"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; animation: fadeIn 0.3s ease-in-out; transition: opacity 0.2s ease-in-out; }
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; animation: fadeIn 0.3s ease-in-out; }
         .text-pertamina-blue { color: #005596; }
         .chart-wrapper:not(:hover) .apexcharts-tooltip { opacity: 0 !important; visibility: hidden !important; transition: opacity 0.1s ease; }
-        .apexcharts-tooltip { background: #fff !important; border-color: #e2e8f0 !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important; pointer-events: none !important; z-index: 9999 !important; border-radius: 8px !important; }
+        .apexcharts-tooltip { background: #fff !important; border-color: #e2e8f0 !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important; border-radius: 8px !important; }
         .apexcharts-tooltip-title { background: #f8fafc !important; border-bottom: 1px solid #e2e8f0 !important; font-family: 'Inter', sans-serif !important; font-size: 14px !important; font-weight: 800 !important; padding: 12px 16px !important; }
         
         .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -22,30 +21,16 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; border: 2px solid #f1f5f9; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
 
+        .lifecycle-card { background: linear-gradient(135deg, #39B54A 0%, #009B4C 100%); transition: transform 0.2s; }
+        .lifecycle-card:hover { transform: translateY(-4px); }
         .lifecycle-pill { background-color: rgba(255,255,255,0.2); color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); backdrop-filter: blur(4px); }
         .sidebar-dark { background-color: #032B25; } 
         .nav-item-active { background-color: #ffffff; border-left: 3px solid #4ade80; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
 
-        .turbo-progress-bar { height: 3px; background-color: #168F4A; }
-        .fade-out { opacity: 0 !important; }
         @keyframes fadeIn { from { opacity: 0.3; } to { opacity: 1; } }
-
-        @keyframes rowEnter {
-            0% { opacity: 0; transform: translateX(-15px); background-color: #dcfce7; }
-            15% { opacity: 1; transform: translateX(0); background-color: #dcfce7; }
-            30% { background-color: #dcfce7; }
-            100% { opacity: 1; transform: translateX(0); background-color: transparent; }
-        }
+        @keyframes rowEnter { 0% { opacity: 0; transform: translateX(-15px); background-color: #dcfce7; } 15% { opacity: 1; transform: translateX(0); background-color: #dcfce7; } 100% { opacity: 1; transform: translateX(0); background-color: transparent; } }
         .animate-new-row > td { animation: rowEnter 2.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
     </style>
-
-    <script>
-        localStorage.setItem('brain_kpi_total_docs', '{{ number_format($kpiData["total_documents"] ?? 0) }}');
-        localStorage.setItem('brain_kpi_project_docs', '{{ number_format($kpiData["document_project"] ?? 0) }}');
-        localStorage.setItem('brain_kpi_fungsi_docs', '{{ number_format($kpiData["document_fungsi"] ?? 0) }}');
-        localStorage.setItem('brain_kpi_active_users', '{{ number_format($kpiData["active_users_30d"] ?? 0) }}');
-        localStorage.setItem('brain_top_project', 'RDMP RU VI Balongan Phase I');
-    </script>
 </head>
 <body class="text-slate-800 flex h-screen overflow-hidden">
     
@@ -69,7 +54,7 @@
             </button>
         </div>
         <nav class="space-y-1">
-            <a href="#" class="nav-item-active flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-900 font-bold text-sm">
+            <a href="{{ route('dashboard') }}" class="nav-item-active flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-900 font-bold text-sm">
                 <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
                 Dashboard
             </a>
@@ -77,14 +62,14 @@
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
                 Files
             </a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 font-semibold transition text-sm">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+            <a href="{{ route('chat.ai') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:bg-gray-100 font-semibold transition text-sm cursor-pointer">
+                <svg class="w-4 h-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
                 AI Assistant
             </a>
         </nav>
     </aside>
 
-    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-[#F8FAFC]" id="main-content">
+    <main class="flex-1 flex flex-col h-screen overflow-hidden bg-[#F8FAFC]">
         <header class="bg-white/70 backdrop-blur-md px-8 py-4 flex justify-between items-center border-b border-gray-200 z-40 shrink-0">
             <div>
                 <h1 class="text-2xl font-black text-slate-900">Dashboard</h1>
@@ -119,7 +104,6 @@
                             <p class="text-[11px] font-bold tracking-widest mt-1 text-white/90 uppercase">Total Documents</p>
                         </div>
                     </div>
-
                     <div class="bg-gradient-to-br from-[#ef956b] to-[#d4744d] p-5 rounded-2xl shadow-md relative overflow-hidden flex items-center h-28 hover:shadow-xl transition-shadow">
                         <div class="relative z-10 w-14 h-14 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-inner shrink-0 mr-4">
                             <svg class="w-7 h-7 text-[#d4744d]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -129,7 +113,6 @@
                             <p class="text-[11px] font-bold tracking-widest mt-1 text-white/90 uppercase">Project Docs</p>
                         </div>
                     </div>
-
                     <div class="bg-gradient-to-br from-[#5b7cce] to-[#3a589e] p-5 rounded-2xl shadow-md relative overflow-hidden flex items-center h-28 hover:shadow-xl transition-shadow">
                         <div class="relative z-10 w-14 h-14 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-inner shrink-0 mr-4">
                             <svg class="w-7 h-7 text-[#3a589e]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -139,7 +122,6 @@
                             <p class="text-[11px] font-bold tracking-widest mt-1 text-white/90 uppercase">Fungsi Docs</p>
                         </div>
                     </div>
-
                     <div class="bg-gradient-to-br from-[#a5c6c6] to-[#7ea4a4] p-5 rounded-2xl shadow-md relative overflow-hidden flex items-center h-28 hover:shadow-xl transition-shadow">
                         <div class="relative z-10 w-14 h-14 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-inner shrink-0 mr-4">
                             <svg class="w-7 h-7 text-[#7ea4a4]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
@@ -149,7 +131,6 @@
                             <p class="text-[11px] font-bold tracking-widest mt-1 text-white/90 uppercase">Total Users</p>
                         </div>
                     </div>
-
                     <div class="bg-gradient-to-br from-[#4ea1e6] to-[#2563eb] p-5 rounded-2xl shadow-md relative overflow-hidden flex items-center h-28 hover:shadow-xl transition-shadow">
                         <div class="relative z-10 w-14 h-14 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-inner shrink-0 mr-4">
                             <svg class="w-7 h-7 text-[#2563eb]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -173,6 +154,10 @@
                             </h4>
                             <p class="text-[12px] text-gray-500 mt-1 font-medium">Monitoring real-time user activities across BRAIN modules</p>
                         </div>
+                        <button onclick="openFullLogModal()" class="text-[11px] text-blue-700 font-bold hover:bg-blue-600 hover:text-white bg-blue-50 px-4 py-2 rounded-lg border border-blue-200 shadow-sm transition-all flex items-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                            View Full Log (30 Days)
+                        </button>
                     </div>
                     <div class="overflow-x-auto overflow-hidden">
                         <table class="w-full text-left">
@@ -190,8 +175,14 @@
                 </div>
 
                 <div class="grid grid-cols-12 gap-5 mt-6 mb-4">
-                    <a href="#" class="col-span-12 lg:col-span-6 bg-gradient-to-r from-[#f0f4ff] to-white border border-blue-200 p-5 rounded-2xl shadow-sm relative overflow-hidden flex flex-col justify-center cursor-pointer hover:shadow-md hover:border-blue-400 transition-all group block">
-                        <div class="absolute top-4 right-4 text-blue-200 transition-transform duration-500 group-hover:scale-125 group-hover:text-blue-300">
+                    <div onclick="window.location.href='{{ route('chat.ai') }}'" class="col-span-12 lg:col-span-6 bg-gradient-to-r from-[#f0f4ff] to-white border border-blue-200 p-5 rounded-2xl shadow-sm relative overflow-hidden flex flex-col justify-center cursor-pointer hover:shadow-md hover:border-blue-400 transition-all group block">
+                        <div class="absolute top-4 right-4 z-20">
+                            <button onclick="exportAiData(event)" class="text-blue-500 hover:text-blue-700 bg-white hover:bg-blue-50 border border-blue-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition flex items-center gap-1 cursor-pointer">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                Export
+                            </button>
+                        </div>
+                        <div class="absolute top-4 right-20 text-blue-100 transition-transform duration-500 group-hover:scale-125 group-hover:text-blue-200 pointer-events-none">
                             <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
                         </div>
                         <div class="relative z-10">
@@ -201,8 +192,9 @@
                             </p>
                             <h3 class="text-4xl font-black text-gray-900 leading-tight"><span id="dynamic-queries">{{ $aiImpact['total_queries'] ?? '1,250' }}</span> <span class="text-sm font-bold text-gray-500">Queries</span></h3>
                             <p class="text-xs text-gray-600 mt-1.5 font-semibold"><span id="dynamic-docs" class="text-green-600 font-black text-sm">{{ $aiImpact['documents_summarized'] ?? '430' }}</span> Documents Summarized automatically</p>
+                            <div class="mt-3 text-[10px] font-bold text-blue-600 underline">Click to Open Smart AI Chat &rarr;</div>
                         </div>
-                    </a>
+                    </div>
 
                     <div class="col-span-12 lg:col-span-6 bg-white border border-gray-200 p-5 rounded-2xl shadow-sm flex flex-col justify-center relative">
                         <div class="flex justify-between items-start mb-3">
@@ -211,63 +203,69 @@
                                 Trending Searches
                                 <span class="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded shadow-sm normal-case">Last 30 Days</span>
                             </p>
-                            <a href="#" class="text-[11px] text-blue-700 font-bold hover:text-white flex items-center gap-1 bg-blue-50 hover:bg-blue-600 px-3 py-1.5 rounded-lg transition border border-blue-200 shadow-sm">Open Smart Search <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></a>
+                            <div class="flex items-center gap-2">
+                                <button onclick="exportTrendingData()" class="text-orange-500 hover:text-orange-700 bg-white hover:bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition flex items-center gap-1 cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                                    Export
+                                </button>
+                                <button onclick="window.location.href='{{ route('smart.search') }}'" class="text-[11px] text-blue-700 font-bold hover:text-white flex items-center gap-1 bg-blue-50 hover:bg-blue-600 px-3 py-1.5 rounded-lg transition border border-blue-200 shadow-sm cursor-pointer">Open Smart Search <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></button>
+                            </div>
                         </div>
                         <div class="flex flex-col gap-2">
                             @foreach($trendingKeywords ?? [] as $keyword)
-                            <a href="#" class="trending-item px-3 py-2 bg-gray-50 border border-gray-200 text-gray-700 text-xs font-bold rounded-lg truncate hover:bg-orange-50 hover:text-orange-700 hover:border-orange-300 transition-all duration-500 cursor-pointer block shadow-sm">
+                            <div onclick="window.location.href='{{ route('smart.search') }}?q=' + encodeURIComponent('{{ $keyword }}')" class="trending-item px-3 py-2 bg-gray-50 border border-gray-200 text-gray-700 text-xs font-bold rounded-lg truncate hover:bg-orange-50 hover:text-orange-700 hover:border-orange-300 transition-all duration-500 cursor-pointer block shadow-sm">
                                 {{ $keyword }}
-                            </a>
+                            </div>
                             @endforeach
                         </div>
                     </div>
                 </div>
 
-                <form id="filterForm" class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex flex-wrap sm:flex-nowrap gap-4 items-end mb-2 mt-2">
+                <form action="{{ route('dashboard') }}" method="GET" class="bg-white p-3 rounded-xl shadow-sm border border-gray-100 flex flex-wrap sm:flex-nowrap gap-4 items-end mb-2 mt-2">
                     <div class="flex-grow">
                         <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">Project Name</label>
-                        <select name="project" id="projectFilter" class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 block p-2 outline-none cursor-pointer">
+                        <select name="project" id="projectFilter" onchange="this.form.submit()" class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 block p-2 outline-none cursor-pointer">
                             <option value="ALL">All Projects</option>
                             @foreach($projectsData as $p) <option value="{{ $p['name'] }}" {{ $filterProject == $p['name'] ? 'selected' : '' }}>{{ $p['name'] }}</option> @endforeach
                         </select>
                     </div>
                     <div class="w-40">
                         <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">Year / Period</label>
-                        <select name="year" id="yearFilter" class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 block p-2 outline-none cursor-pointer">
-                            <option value="CURRENT">Current (YTD)</option>
-                            <option value="ALL">All Years</option>
-                            <option value="2026">2026</option>
-                            <option value="2025">2025</option>
+                        <select name="year" id="yearFilter" onchange="this.form.submit()" class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 block p-2 outline-none cursor-pointer">
+                            <option value="CURRENT" {{ $filterYear == 'CURRENT' ? 'selected' : '' }}>Current (YTD)</option>
+                            <option value="ALL" {{ $filterYear == 'ALL' ? 'selected' : '' }}>All Years</option>
+                            <option value="2026" {{ $filterYear == '2026' ? 'selected' : '' }}>2026</option>
+                            <option value="2025" {{ $filterYear == '2025' ? 'selected' : '' }}>2025</option>
                         </select>
                     </div>
                     <div class="w-40">
                         <label class="block text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wide">Month</label>
-                        <select name="month" id="monthFilter" class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 block p-2 outline-none cursor-pointer">
-                            <option value="ALL">All Months</option>
-                            @for($m=1; $m<=12; $m++) <option value="{{ $m }}">{{ date('F', mktime(0, 0, 0, $m, 10)) }}</option> @endfor
+                        <select name="month" id="monthFilter" onchange="this.form.submit()" class="w-full bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg focus:ring-blue-500 block p-2 outline-none cursor-pointer">
+                            <option value="ALL" {{ $filterMonth == 'ALL' ? 'selected' : '' }}>All Months</option>
+                            @for($m=1; $m<=12; $m++) <option value="{{ $m }}" {{ $filterMonth == $m ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $m, 10)) }}</option> @endfor
                         </select>
                     </div>
                 </form>
 
                 <div class="grid grid-cols-12 gap-5 mt-4">
-                    <div class="col-span-5 bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col chart-wrapper relative" style="height: calc(100vh - 300px); min-height: 570px;">
-                        <div class="mb-3 flex justify-between items-start shrink-0">
+                    <div class="col-span-5 bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col h-[500px] chart-wrapper relative">
+                        <div class="mb-3 flex justify-between items-start">
                             <div>
-                                <h4 class="font-black text-gray-900 text-base">Total Document per Project <span class="text-blue-600 ml-1 font-bold">(<span id="projectTitleLabel">{{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }}</span> <span class="mx-1 text-gray-300">|</span> <span id="timeTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
-                                <p class="text-xs text-gray-500 mt-1 font-medium">Total volume based on selected period</p>
+                                <h4 class="font-bold text-gray-800 text-sm">Total Document per Project <span class="text-blue-600 ml-1">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1">|</span> <span id="timeTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
+                                <p class="text-[10px] text-gray-400">Total volume based on selected period</p>
                             </div>
-                            <button onclick="toggleProjectChart()" id="btnProject" class="text-[10px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition border border-blue-200 cursor-pointer shadow-sm shrink-0">View All Projects</button>
+                            <button onclick="toggleProjectChart()" id="btnProject" class="text-[10px] font-bold text-blue-600 hover:bg-blue-50 px-2 py-1 rounded border border-blue-100 transition cursor-pointer shrink-0">View All</button>
                         </div>
                         <div id="chartProject" class="flex-grow w-full min-h-0 transition-opacity duration-300"></div>
                     </div>
 
-                    <div class="col-span-7 bg-white p-5 rounded-xl shadow-sm border border-gray-200 flex flex-col chart-wrapper relative" style="height: calc(100vh - 300px); min-height: 570px;">
-                        <div class="mb-2 flex justify-between items-start shrink-0">
+                    <div class="col-span-7 bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col h-[500px] chart-wrapper relative">
+                        <div class="mb-3 flex justify-between items-start shrink-0">
                             <div>
-                                <h4 class="font-black text-gray-900 text-base">Document Upload Trend <span class="text-orange-600 ml-1 font-bold">(<span id="projectTrendTitleLabel">{{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }}</span> <span class="mx-1 text-gray-300">|</span> <span id="timeTrendTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
-                                <p class="text-xs text-gray-500 mt-1 font-medium">Vertical Grouped Column (Scroll horizontally to view more)</p>
+                                <h4 class="font-bold text-gray-800 text-sm">Document Upload Trend <span class="text-orange-600 ml-1">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1">|</span> <span id="timeTrendTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
+                                <p class="text-[10px] text-gray-400">Vertical Grouped Column (Scroll horizontally)</p>
                             </div>
-                            <button onclick="toggleTrendChart()" id="btnTrend" class="text-[10px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition border border-blue-200 cursor-pointer shadow-sm shrink-0">View All Trends</button>
+                            <button onclick="toggleTrendChart()" id="btnTrend" class="text-[10px] font-bold text-blue-600 hover:bg-blue-50 px-2 py-1 rounded border border-blue-100 transition cursor-pointer shrink-0">View All Trends</button>
                         </div>
                         <div id="trendChartWrapper" class="w-full overflow-x-auto custom-scrollbar flex-grow pb-2 mt-2">
                             <div id="chartTrend" class="min-h-full transition-opacity duration-300"></div>
@@ -298,21 +296,21 @@
                     @endforeach
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 mt-6 transition-all duration-300 mb-8 relative pt-4 pb-2">
+                <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100 mt-4 transition-all duration-300 mb-5 relative pt-4 pb-2">
                     <div class="absolute top-4 right-4 z-10">
                         <button onclick="toggleQuickAccess()" class="text-[10px] text-blue-700 font-bold hover:bg-blue-100 flex items-center gap-1 focus:outline-none bg-blue-50 px-3 py-1.5 rounded-md border border-blue-200 transition-colors shadow-sm">
                             <span id="qaToggleText">Hide table</span>
                             <svg id="qaToggleIcon" class="w-3.5 h-3.5 transition-transform duration-300 transform rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7" /></svg>
                         </button>
                     </div>
-
-                    <div class="px-5 mb-4">
+                    
+                    <div id="quickAccessHeader" class="px-5 mb-4">
                         <h4 class="font-black text-gray-900 text-base mb-3">Quick Access Files</h4>
                         <div class="flex items-center gap-2 border-b border-gray-200 pb-2 overflow-x-auto custom-scrollbar">
                             <button onclick="switchQaTab('recent')" id="tab-recent" class="qa-tab whitespace-nowrap active-tab bg-[#168F4A] text-white px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-md">Recent document</button>
                             <button onclick="switchQaTab('open')" id="tab-open" class="qa-tab whitespace-nowrap text-gray-500 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 px-4 py-2 rounded-lg text-xs font-bold transition-all border border-gray-200">Recent open</button>
                             <button onclick="switchQaTab('confidential')" id="tab-confidential" class="qa-tab whitespace-nowrap text-gray-500 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 px-4 py-2 rounded-lg text-xs font-bold transition-all border border-gray-200">Confidential Document</button>
-                            <button onclick="switchQaTab('handover')" id="tab-handover" class="qa-tab whitespace-nowrap text-gray-500 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 px-4 py-2 rounded-lg text-xs font-bold transition-all border border-gray-200">Latest handover document</button>
+                            <button onclick="switchQaTab('handover')" id="tab-handover" class="qa-tab whitespace-nowrap text-gray-500 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 px-4 py-2 rounded-lg text-xs font-bold transition-all border border-gray-200">Latest handover</button>
                         </div>
                     </div>
 
@@ -321,7 +319,7 @@
                             <table class="w-full text-left text-xs text-gray-600">
                                 <thead class="text-[10px] text-gray-500 uppercase bg-gray-100 border-y border-gray-200 font-black">
                                     <tr>
-                                        <th class="py-2.5 pl-4 w-10 rounded-l-lg"><input type="checkbox" class="rounded border-gray-400 text-blue-600 focus:ring-blue-500 w-3.5 h-3.5 cursor-pointer"></th>
+                                        <th class="py-2.5 pl-4 w-10 rounded-l-lg"><input type="checkbox" class="rounded border-gray-400 w-3.5 h-3.5 cursor-pointer"></th>
                                         <th class="py-2.5">File Name</th>
                                         <th class="py-2.5">Category</th>
                                         <th class="py-2.5" id="qa-th-security">Security Level</th>
@@ -331,8 +329,8 @@
                                 
                                 <tbody id="tbody-recent" class="qa-tbody">
                                     @foreach($qaRecentDocs ?? [] as $file)
-                                    <tr class="bg-white border-b border-gray-100 hover:bg-green-50 transition-colors cursor-pointer group">
-                                        <td class="py-3 pl-4"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500 w-3.5 h-3.5 cursor-pointer" onclick="event.stopPropagation()"></td>
+                                    <tr onclick="window.location.href='{{ route('document.preview') }}?doc=' + encodeURIComponent('{{ $file['name'] }}')" class="bg-white border-b border-gray-100 hover:bg-green-50 transition-colors cursor-pointer group">
+                                        <td class="py-3 pl-4" onclick="event.stopPropagation()"><input type="checkbox" class="rounded border-gray-300 w-3.5 h-3.5 cursor-pointer"></td>
                                         <td class="py-3 font-bold text-gray-900 flex items-center gap-3 group-hover:text-[#168F4A] transition-colors text-sm">
                                             @if(strtolower($file['type']) == 'pdf') <div class="w-7 h-7 bg-red-100 border border-red-200 rounded-lg flex items-center justify-center text-red-600 font-black text-[8px] shrink-0 shadow-sm">PDF</div>
                                             @elseif(in_array(strtolower($file['type']), ['word', 'docx'])) <div class="w-7 h-7 bg-blue-100 border border-blue-200 rounded-lg flex items-center justify-center text-blue-600 font-black text-[8px] shrink-0 shadow-sm">DOC</div>
@@ -340,7 +338,7 @@
                                             @else <div class="w-7 h-7 bg-purple-100 border border-purple-200 rounded-lg flex items-center justify-center text-purple-600 font-black text-[8px] shrink-0 shadow-sm">IMG</div> @endif
                                             <span class="truncate max-w-[250px]">{{ $file['name'] }}</span>
                                         </td>
-                                        <td class="py-3"><span class="bg-gray-100 text-gray-700 text-[9px] font-bold px-2 py-1 rounded border border-gray-200 uppercase flex w-fit items-center shadow-sm">{{ $file['category'] }}</span></td>
+                                        <td class="py-3"><span class="bg-gray-100 text-gray-700 text-[9px] font-bold px-2 py-1 rounded border border-gray-200 uppercase shadow-sm">{{ $file['category'] }}</span></td>
                                         <td class="py-3 text-gray-700 font-semibold">{{ $file['security'] }}</td>
                                         <td class="py-3 text-gray-500 pr-4 text-right font-medium text-xs">{{ $file['date'] }}</td>
                                     </tr>
@@ -349,8 +347,8 @@
 
                                 <tbody id="tbody-open" class="qa-tbody hidden">
                                     @foreach($qaRecentOpen ?? [] as $file)
-                                    <tr class="bg-white border-b border-gray-100 hover:bg-green-50 transition-colors cursor-pointer group">
-                                        <td class="py-3 pl-4"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500 w-3.5 h-3.5 cursor-pointer" onclick="event.stopPropagation()"></td>
+                                    <tr onclick="window.location.href='{{ route('document.preview') }}?doc=' + encodeURIComponent('{{ $file['name'] }}')" class="bg-white border-b border-gray-100 hover:bg-green-50 transition-colors cursor-pointer group">
+                                        <td class="py-3 pl-4" onclick="event.stopPropagation()"><input type="checkbox" class="rounded border-gray-300 w-3.5 h-3.5 cursor-pointer"></td>
                                         <td class="py-3 font-bold text-gray-900 flex items-center gap-3 group-hover:text-[#168F4A] transition-colors text-sm">
                                             @if(strtolower($file['type']) == 'pdf') <div class="w-7 h-7 bg-red-100 border border-red-200 rounded-lg flex items-center justify-center text-red-600 font-black text-[8px] shrink-0 shadow-sm">PDF</div>
                                             @elseif(in_array(strtolower($file['type']), ['word', 'docx'])) <div class="w-7 h-7 bg-blue-100 border border-blue-200 rounded-lg flex items-center justify-center text-blue-600 font-black text-[8px] shrink-0 shadow-sm">DOC</div>
@@ -358,7 +356,7 @@
                                             @else <div class="w-7 h-7 bg-purple-100 border border-purple-200 rounded-lg flex items-center justify-center text-purple-600 font-black text-[8px] shrink-0 shadow-sm">IMG</div> @endif
                                             <span class="truncate max-w-[250px]">{{ $file['name'] }}</span>
                                         </td>
-                                        <td class="py-3"><span class="bg-gray-100 text-gray-700 text-[9px] font-bold px-2 py-1 rounded border border-gray-200 uppercase flex w-fit items-center shadow-sm">{{ $file['category'] }}</span></td>
+                                        <td class="py-3"><span class="bg-gray-100 text-gray-700 text-[9px] font-bold px-2 py-1 rounded border border-gray-200 uppercase shadow-sm">{{ $file['category'] }}</span></td>
                                         <td class="py-3 text-gray-700 font-semibold">{{ $file['security'] }}</td>
                                         <td class="py-3 text-gray-500 pr-4 text-right font-medium text-xs">{{ $file['date'] }}</td>
                                     </tr>
@@ -367,8 +365,8 @@
 
                                 <tbody id="tbody-confidential" class="qa-tbody hidden">
                                     @foreach($qaConfidential ?? [] as $file)
-                                    <tr class="bg-white border-b border-gray-100 hover:bg-green-50 transition-colors cursor-pointer group">
-                                        <td class="py-3 pl-4"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500 w-3.5 h-3.5 cursor-pointer" onclick="event.stopPropagation()"></td>
+                                    <tr onclick="window.location.href='{{ route('document.preview') }}?doc=' + encodeURIComponent('{{ $file['name'] }}')" class="bg-white border-b border-gray-100 hover:bg-green-50 transition-colors cursor-pointer group">
+                                        <td class="py-3 pl-4" onclick="event.stopPropagation()"><input type="checkbox" class="rounded border-gray-300 w-3.5 h-3.5 cursor-pointer"></td>
                                         <td class="py-3 font-bold text-gray-900 flex items-center gap-3 group-hover:text-[#168F4A] transition-colors text-sm">
                                             @if(strtolower($file['type']) == 'pdf') <div class="w-7 h-7 bg-red-100 border border-red-200 rounded-lg flex items-center justify-center text-red-600 font-black text-[8px] shrink-0 shadow-sm">PDF</div>
                                             @elseif(in_array(strtolower($file['type']), ['word', 'docx'])) <div class="w-7 h-7 bg-blue-100 border border-blue-200 rounded-lg flex items-center justify-center text-blue-600 font-black text-[8px] shrink-0 shadow-sm">DOC</div>
@@ -376,7 +374,7 @@
                                             @else <div class="w-7 h-7 bg-purple-100 border border-purple-200 rounded-lg flex items-center justify-center text-purple-600 font-black text-[8px] shrink-0 shadow-sm">IMG</div> @endif
                                             <span class="truncate max-w-[250px]">{{ $file['name'] }}</span>
                                         </td>
-                                        <td class="py-3"><span class="bg-gray-100 text-gray-700 text-[9px] font-bold px-2 py-1 rounded border border-gray-200 uppercase flex w-fit items-center shadow-sm">{{ $file['category'] }}</span></td>
+                                        <td class="py-3"><span class="bg-gray-100 text-gray-700 text-[9px] font-bold px-2 py-1 rounded border border-gray-200 uppercase shadow-sm">{{ $file['category'] }}</span></td>
                                         <td class="py-3">
                                             <span class="text-red-700 bg-red-50 border border-red-300 px-2 py-0.5 rounded font-bold text-[9px] flex items-center gap-1 w-fit shadow-sm">
                                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
@@ -390,8 +388,8 @@
 
                                 <tbody id="tbody-handover" class="qa-tbody hidden">
                                     @foreach($qaHandover ?? [] as $file)
-                                    <tr class="bg-white border-b border-gray-100 hover:bg-green-50 transition-colors cursor-pointer group">
-                                        <td class="py-3 pl-4"><input type="checkbox" class="rounded border-gray-300 text-green-600 focus:ring-green-500 w-3.5 h-3.5 cursor-pointer" onclick="event.stopPropagation()"></td>
+                                    <tr onclick="window.location.href='{{ route('document.preview') }}?doc=' + encodeURIComponent('{{ $file['name'] }}')" class="bg-white border-b border-gray-100 hover:bg-green-50 transition-colors cursor-pointer group">
+                                        <td class="py-3 pl-4" onclick="event.stopPropagation()"><input type="checkbox" class="rounded border-gray-300 w-3.5 h-3.5 cursor-pointer"></td>
                                         <td class="py-3 font-bold text-gray-900 flex items-center gap-3 group-hover:text-[#168F4A] transition-colors text-sm">
                                             @if(strtolower($file['type']) == 'pdf') <div class="w-7 h-7 bg-red-100 border border-red-200 rounded-lg flex items-center justify-center text-red-600 font-black text-[8px] shrink-0 shadow-sm">PDF</div>
                                             @elseif(in_array(strtolower($file['type']), ['word', 'docx'])) <div class="w-7 h-7 bg-blue-100 border border-blue-200 rounded-lg flex items-center justify-center text-blue-600 font-black text-[8px] shrink-0 shadow-sm">DOC</div>
@@ -399,7 +397,7 @@
                                             @else <div class="w-7 h-7 bg-purple-100 border border-purple-200 rounded-lg flex items-center justify-center text-purple-600 font-black text-[8px] shrink-0 shadow-sm">IMG</div> @endif
                                             <span class="truncate max-w-[250px]">{{ $file['name'] }}</span>
                                         </td>
-                                        <td class="py-3"><span class="bg-gray-100 text-gray-700 text-[9px] font-bold px-2 py-1 rounded border border-gray-200 uppercase flex w-fit items-center shadow-sm">{{ $file['category'] }}</span></td>
+                                        <td class="py-3"><span class="bg-gray-100 text-gray-700 text-[9px] font-bold px-2 py-1 rounded border border-gray-200 uppercase shadow-sm">{{ $file['category'] }}</span></td>
                                         <td class="py-3"><span class="px-2 py-1 rounded font-bold text-[9px] border {{ $file['status_color'] }} shadow-sm">{{ $file['status'] }}</span></td>
                                         <td class="py-3 text-gray-500 pr-4 text-right font-medium text-xs">{{ $file['date'] }}</td>
                                     </tr>
@@ -414,9 +412,43 @@
         </div>
     </main>
 
-    <div id="phaseModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex justify-center items-center transition-opacity duration-300 opacity-0">
-        <div id="phaseModalContent" class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col transform scale-95 transition-transform duration-300 max-h-[85vh]">
-            <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center bg-gray-50/80 rounded-t-2xl">
+    <div id="fullLogModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex justify-center items-center transition-opacity duration-300 opacity-0 p-4">
+        <div id="fullLogContent" class="bg-white w-full max-w-6xl rounded-2xl shadow-2xl flex flex-col transform scale-95 transition-transform duration-300 h-[90vh]">
+            <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                <div>
+                    <h3 class="font-black text-gray-900 text-xl">Full System Audit Trail (30 Days)</h3>
+                    <p class="text-xs text-gray-500 font-semibold">Complete activity records for compliance and monitoring.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="exportToExcel()" class="text-sm font-bold bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-sm flex items-center gap-2 transition-colors">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        Export to Excel
+                    </button>
+                    <button onclick="closeFullLogModal()" class="text-gray-400 hover:text-red-600 p-2 rounded-xl hover:bg-red-50 transition">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="p-0 overflow-y-auto flex-grow custom-scrollbar">
+                <table class="w-full text-left text-xs" id="fullLogTable">
+                    <thead class="text-[10px] text-gray-500 uppercase font-black border-b-2 border-gray-200 bg-white sticky top-0 shadow-sm">
+                        <tr>
+                            <th class="py-3 pl-6">User</th>
+                            <th class="py-3">Action</th>
+                            <th class="py-3">Target Details</th>
+                            <th class="py-3 pr-6 text-right">Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fullLogTableBody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="phaseModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex justify-center items-center transition-opacity duration-300 opacity-0 p-4">
+        <div id="phaseModalContent" class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl flex flex-col transform scale-95 transition-transform duration-300 h-[85vh]">
+            <div class="px-6 py-5 border-b border-gray-200 flex justify-between items-center bg-gray-50 rounded-t-2xl shrink-0">
                 <div class="flex items-center gap-4">
                     <div class="bg-green-100 p-2.5 rounded-xl text-[#168F4A] shadow-inner border border-green-200">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
@@ -430,14 +462,14 @@
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </div>
-            <div class="p-6 overflow-y-auto custom-scrollbar flex-grow">
+            <div class="p-0 overflow-y-auto custom-scrollbar flex-grow">
                 <table class="w-full text-left text-xs text-gray-600">
                     <thead class="text-[10px] text-gray-500 uppercase font-black border-b-2 border-gray-200 bg-white sticky top-0 z-10 shadow-sm">
                         <tr>
-                            <th class="py-3 pl-3">Document Title</th>
+                            <th class="py-3 pl-6">Document Title</th>
                             <th class="py-3">Project / Origin</th>
                             <th class="py-3">Uploader</th>
-                            <th class="py-3 text-right pr-3">Upload Date</th>
+                            <th class="py-3 text-right pr-6">Upload Date</th>
                         </tr>
                     </thead>
                     <tbody id="phaseModalTableBody"></tbody>
@@ -446,7 +478,11 @@
         </div>
     </div>
 
+
     <script>
+        // ========================================================
+        // TAB LOGIC & HIDE TABLE
+        // ========================================================
         function switchQaTab(tabName) {
             document.querySelectorAll('.qa-tab').forEach(el => { 
                 el.classList.remove('bg-[#168F4A]', 'text-white', 'shadow-md', 'active-tab'); 
@@ -460,16 +496,103 @@
             document.getElementById('tbody-' + tabName).classList.remove('hidden');
         }
 
+        // FIX HIDE TABLE: Ensures table properly disappears
         function toggleQuickAccess() {
             const content = document.getElementById('quickAccessContent');
+            const header = document.getElementById('quickAccessHeader');
             const text = document.getElementById('qaToggleText');
             const icon = document.getElementById('qaToggleIcon');
-            if (content.classList.contains('hidden')) { content.classList.remove('hidden'); text.innerText = "Hide"; icon.classList.remove('rotate-180'); } 
-            else { content.classList.add('hidden'); text.innerText = "Show"; icon.classList.add('rotate-180'); }
+            
+            if (content.classList.contains('hidden')) { 
+                content.classList.remove('hidden'); 
+                header.classList.remove('hidden');
+                text.innerText = "Hide table"; 
+                icon.classList.add('rotate-180'); 
+            } else { 
+                content.classList.add('hidden'); 
+                header.classList.add('hidden');
+                text.innerText = "Show table"; 
+                icon.classList.remove('rotate-180'); 
+            }
         }
 
         // ========================================================
-        // 1. DATA MASTER DARI CONTROLLER 
+        // MODAL/OVERLAY LOGIC (Full Log & Phase Modal)
+        // ========================================================
+
+        let fullLogDataArray = []; 
+
+        function openFullLogModal() {
+            const m = document.getElementById('fullLogModal'), c = document.getElementById('fullLogContent'), tbody = document.getElementById('fullLogTableBody');
+            tbody.innerHTML = '';
+            fullLogDataArray = [];
+            
+            for(let i=0; i<30; i++) {
+                const log = generateRandomLog(true); 
+                fullLogDataArray.push(log);
+                tbody.innerHTML += `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                        <td class="py-3 pl-6 flex items-center gap-3"><div class="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black border border-gray-200 shadow-sm ${log.avatar_color}">${log.initial}</div><span class="font-bold text-gray-800 text-xs">${log.user}</span></td>
+                        <td class="py-3"><span class="px-2.5 py-1 rounded-lg text-[10px] font-bold border flex items-center gap-1 w-fit ${log.action_color}">${log.action_label}</span></td>
+                        <td class="py-3"><div class="font-bold text-gray-900 text-xs truncate max-w-[400px]">${log.document}</div><div class="text-[9px] text-gray-500 mt-0.5 font-semibold">${log.location}</div></td>
+                        <td class="py-3 text-right pr-6 text-gray-500 text-xs font-medium">${log.time}</td>
+                    </tr>
+                `;
+            }
+            m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); c.classList.remove('scale-95');
+        }
+        function closeFullLogModal() { 
+            const m = document.getElementById('fullLogModal'), c = document.getElementById('fullLogContent'); 
+            m.classList.add('opacity-0'); c.classList.add('scale-95'); 
+            setTimeout(() => { m.classList.add('hidden'); }, 300); 
+        }
+
+        function exportToExcel() {
+            if(fullLogDataArray.length === 0) return;
+            let csvContent = "data:text/csv;charset=utf-8,User,Action,Document/Target,Location/Module,Timestamp\n";
+            fullLogDataArray.forEach(function(row) {
+                let user = `"${row.user}"`;
+                let action = `"${row.action_label}"`;
+                let doc = `"${row.document.replace(/"/g, '""')}"`;
+                let loc = `"${row.location}"`;
+                let time = `"${row.time}"`;
+                csvContent += `${user},${action},${doc},${loc},${time}\n`;
+            });
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "BRAIN_Audit_Log_30Days.csv");
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+        
+        function exportAiData(e) {
+            e.stopPropagation(); 
+            let csvContent = "data:text/csv;charset=utf-8,Date,Total Queries,Docs Summarized\n";
+            for(let i=0; i<30; i++) {
+                let d = new Date(); d.setDate(d.getDate() - i);
+                let dateStr = d.toLocaleDateString('en-GB');
+                csvContent += `${dateStr},${Math.floor(Math.random()*50 + 10)},${Math.floor(Math.random()*20 + 5)}\n`;
+            }
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "AI_Impact_Last_30Days.csv");
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        function exportTrendingData() {
+            let csvContent = "data:text/csv;charset=utf-8,Keyword,Search Volume\n";
+            const kws = ['#HAZOP_Balongan', '#Kontrak_EPC_Tuban', '#P&ID_Cilacap', 'Drawings Area 5', 'Budget Q2'];
+            kws.forEach(kw => { csvContent += `"${kw}",${Math.floor(Math.random()*150 + 50)}\n`; });
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Trending_Searches_Last_30Days.csv");
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        // ========================================================
+        // CHARTS & DATA LOGIC (APEXCHARTS)
         // ========================================================
         const topProjectNames = @json($barNames); 
         const topProjectValues = @json($barValues);
@@ -486,18 +609,11 @@
         const chartCategories = @json($chartCategories);
         const tooltipDates = @json($chartTooltipDates); 
         
-        const masterProjectData = fullProjectNames.map((name, index) => ({
-            name: name,
-            value: fullProjectValues[index],
-            color: fullProjectColors[index]
-        }));
+        const masterProjectData = fullProjectNames.map((name, index) => ({ name: name, value: fullProjectValues[index], color: fullProjectColors[index] }));
         
         let projectChartInstance = null; let trendChartInstance = null;
         let isProjectExpanded = false; let isTrendExpanded = false;
 
-        // ========================================================
-        // 2. FUNGSI DINAMIS UNTUK HORIZONTAL SCROLL
-        // ========================================================
         function adjustTrendChartWidth(numCategories, numSeries) {
             const wrapper = document.getElementById('trendChartWrapper');
             const containerWidth = wrapper.clientWidth || 800; 
@@ -515,136 +631,16 @@
             document.getElementById('chartTrend').style.minWidth = finalWidth + 'px';
         }
 
-        // ========================================================
-        // 3. FUNGSI FILTER TANPA RELOAD (SIMULASI AJAX)
-        // ========================================================
-        function updateChartsSmoothly() {
-            const selectedProject = document.getElementById('projectFilter').value;
-            const selectedMonth = document.getElementById('monthFilter').value;
-            const selectedYear = document.getElementById('yearFilter').value;
-            
-            document.querySelector('#chartProject').style.opacity = '0.4';
-            document.querySelector('#chartTrend').style.opacity = '0.4';
-
-            setTimeout(() => {
-                let filteredBarData = [];
-                let filteredBarNames = [];
-                let filteredBarColors = [];
-                let filteredWaveData = [];
-                let filteredWaveColors = [];
-
-                if (selectedProject === 'ALL') {
-                    filteredBarNames = isProjectExpanded ? fullProjectNames : topProjectNames;
-                    filteredBarData = isProjectExpanded ? fullProjectValues : topProjectValues;
-                    filteredBarColors = isProjectExpanded ? fullProjectColors : topProjectColors;
-                    
-                    filteredWaveData = isTrendExpanded ? fullWaveSeries : waveSeries;
-                    filteredWaveColors = isTrendExpanded ? fullWaveColors : waveColors;
-                } else {
-                    const projMatch = masterProjectData.find(item => item.name === selectedProject);
-                    if(projMatch) {
-                        filteredBarNames = [projMatch.name];
-                        filteredBarData = [projMatch.value];
-                        filteredBarColors = [projMatch.color];
-                    }
-                    
-                    const waveMatch = fullWaveSeries.find(series => series.name === selectedProject);
-                    if(waveMatch) {
-                        filteredWaveData = [waveMatch];
-                        const wIndex = fullWaveSeries.findIndex(s => s.name === selectedProject);
-                        filteredWaveColors = wIndex > -1 ? [fullWaveColors[wIndex]] : ['#005596'];
-                    }
-                }
-
-                let newCategories = [];
-                let titleTimeLabel = "";
-                
-                if (selectedMonth === 'ALL') {
-                    newCategories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-                    titleTimeLabel = selectedYear === 'ALL' ? 'Aggregate (2025-2026)' : 'Year ' + selectedYear;
-                    
-                    if(selectedYear !== 'CURRENT') {
-                        filteredWaveData = filteredWaveData.map(series => ({
-                            name: series.name,
-                            data: series.data.map(val => Math.floor(val * (0.8 + Math.random() * 0.4)))
-                        }));
-                        filteredBarData = filteredBarData.map(val => Math.floor(val * (0.8 + Math.random() * 0.4)));
-                    }
-                    
-                } else {
-                    let yearToUse = selectedYear === 'ALL' || selectedYear === 'CURRENT' ? 2026 : parseInt(selectedYear);
-                    let daysInMonth = new Date(yearToUse, parseInt(selectedMonth), 0).getDate();
-                    const monthName = getMonthName(selectedMonth);
-                    
-                    for (let i = 1; i <= daysInMonth; i++) {
-                        newCategories.push(i.toString() + ' ' + monthName);
-                    }
-                    titleTimeLabel = monthName + ' ' + yearToUse;
-                    
-                    filteredWaveData = filteredWaveData.map(series => {
-                        let dailyData = [];
-                        const isGiantProject = series.name === 'RDMP RU VI Balongan Phase I';
-                        for(let i=0; i<daysInMonth; i++) {
-                            dailyData.push(isGiantProject ? Math.floor(Math.random() * 200 + 300) : Math.floor(Math.random() * 40 + 10));
-                        }
-                        return { name: series.name, data: dailyData };
-                    });
-                    
-                    filteredBarData = filteredWaveData.map(series => series.data.reduce((a, b) => a + b, 0));
-                }
-
-                adjustTrendChartWidth(newCategories.length, filteredWaveData.length);
-
-                projectChartInstance.updateOptions({
-                    xaxis: { categories: filteredBarNames },
-                    colors: filteredBarColors
-                }, false, false, false);
-                
-                projectChartInstance.updateSeries([{
-                    name: 'Documents',
-                    data: filteredBarData
-                }]);
-
-                trendChartInstance.updateOptions({
-                    xaxis: { categories: newCategories },
-                    colors: filteredWaveColors
-                }, false, false, false);
-                
-                trendChartInstance.updateSeries(filteredWaveData);
-                
-                document.getElementById('projectTitleLabel').innerText = selectedProject === 'ALL' ? 'All Projects' : selectedProject;
-                document.getElementById('projectTrendTitleLabel').innerText = selectedProject === 'ALL' ? 'All Projects' : selectedProject;
-                document.getElementById('timeTitleLabel').innerText = titleTimeLabel;
-                document.getElementById('timeTrendTitleLabel').innerText = titleTimeLabel;
-
-                document.querySelector('#chartProject').style.opacity = '1';
-                document.querySelector('#chartTrend').style.opacity = '1';
-                
-            }, 300); 
-        }
-
-        function getMonthName(monthNumber) {
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            return months[parseInt(monthNumber) - 1];
-        }
-
-        document.getElementById('projectFilter').addEventListener('change', updateChartsSmoothly);
-        document.getElementById('yearFilter').addEventListener('change', updateChartsSmoothly);
-        document.getElementById('monthFilter').addEventListener('change', updateChartsSmoothly);
-
-        // ========================================================
-        // 4. KONFIGURASI APEX CHARTS
-        // ========================================================
         const getProjectOptions = (names, values, colors) => {
             return {
                 series: [{ name: 'Documents', data: values }],
-                chart: { type: 'bar', height: 595, toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
+                chart: { type: 'bar', height: 420, toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
                 plotOptions: { bar: { borderRadius: 2, horizontal: true, barHeight: '70%', distributed: true, dataLabels: { position: 'top' } } },
                 colors: colors,
                 dataLabels: { enabled: true, textAnchor: 'start', offsetX: 30, style: { fontSize: '12px', colors: ['#1e293b'], fontWeight: 700, fontFamily: 'Inter, sans-serif' }, formatter: function (val) { return val.toLocaleString('id-ID'); }, dropShadow: { enabled: false } },
                 xaxis: { categories: names, labels: { show: true, formatter: val => (val >= 1000000 ? (val/1000000).toFixed(1)+'m' : (val/1000).toFixed(0)+'k'), style: { fontSize: '10px', colors: ['#94a3b8'] } }, axisBorder: { show: false }, axisTicks: { show: false } },
                 yaxis: { labels: { style: { fontSize: '12px', fontWeight: 600, fontFamily: 'Inter' }, maxWidth: 180 } },
-                grid: { borderColor: '#f1f5f9', strokeDashArray: 3, padding: { bottom: 40, right: 80, left: 10 }, xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
+                grid: { borderColor: '#f1f5f9', strokeDashArray: 3, padding: { bottom: 20, right: 80, left: 10 }, xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
                 legend: { show: false },
                 tooltip: { theme: 'light', fixed: { enabled: false }, custom: function({series, seriesIndex, dataPointIndex, w}) { let val = series[seriesIndex][dataPointIndex]; let label = w.globals.labels[dataPointIndex]; let color = w.config.colors[dataPointIndex]; return `<div class="px-4 py-3 bg-white border border-gray-300 shadow-2xl rounded-lg min-w-[200px]"><div class="text-[10px] text-gray-400 font-bold uppercase mb-1">Project Name</div><div class="flex items-center gap-2 mb-3"><span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${color}"></span><span class="text-xs font-bold text-gray-800 leading-tight">${label}</span></div><div class="border-t border-gray-200 pt-2 flex justify-between items-center"><span class="text-xs text-gray-500 font-semibold">Total Docs</span><span class="text-lg font-black text-slate-800">${val.toLocaleString('id-ID')}</span></div></div>`; } }
             };
@@ -654,8 +650,8 @@
             return {
                 series: seriesData,
                 chart: { 
-                    type: 'bar', // COLUMN CHART
-                    height: 580, 
+                    type: 'bar', // Menggunakan Vertical Column sesuai request
+                    height: 420, 
                     stacked: false, 
                     toolbar: { show: false }, 
                     fontFamily: 'Inter, sans-serif', 
@@ -712,9 +708,7 @@
             } 
         }
 
-        // ========================================================
-        // 5. MODAL PHASE
-        // ========================================================
+        // PHASE MODAL
         const phaseDocumentsData = @json($phaseDocuments ?? []);
         function openPhaseModal(phaseKey) {
             const m = document.getElementById('phaseModal'), c = document.getElementById('phaseModalContent'), s = document.getElementById('phaseModalSubtitle'), tbody = document.getElementById('phaseModalTableBody');
@@ -722,13 +716,14 @@
             tbody.innerHTML = '';
             if(phaseDocumentsData[phaseKey]) {
                 phaseDocumentsData[phaseKey].forEach(doc => {
-                    let typeBadge = doc.type === 'PDF' ? `<div class="w-7 h-7 bg-red-100 rounded-lg flex items-center justify-center text-red-600 font-black text-[8px] shrink-0 border border-red-200">PDF</div>` : (['word', 'docx'].includes(doc.type.toLowerCase()) ? `<div class="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-black text-[8px] shrink-0 border border-blue-200">DOC</div>` : `<div class="w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center text-green-600 font-black text-[8px] shrink-0 border border-green-200">XLS</div>`);
+                    let typeBadge = doc.type === 'PDF' ? `<div class="w-7 h-7 bg-red-100 rounded-lg flex items-center justify-center text-red-600 font-black text-[8px] shrink-0 border border-red-200 shadow-sm">PDF</div>` : (['word', 'docx'].includes(doc.type.toLowerCase()) ? `<div class="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-black text-[8px] shrink-0 border border-blue-200 shadow-sm">DOC</div>` : `<div class="w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center text-green-600 font-black text-[8px] shrink-0 border border-green-200 shadow-sm">XLS</div>`);
+                    // Arahkan ke halaman eksternal preview
                     tbody.innerHTML += `
-                        <tr class="border-b border-gray-100 hover:bg-green-50 transition-colors cursor-pointer group">
-                            <td class="py-3 pl-4 flex items-center gap-3">${typeBadge}<div><div class="font-bold text-gray-900 text-xs group-hover:text-[#168F4A] transition-colors">${doc.doc_name}</div><div class="text-[9px] text-gray-500 font-bold mt-0.5">${doc.size}</div></div></td>
-                            <td class="py-3 font-bold text-gray-700 text-xs">${doc.project}</td>
+                        <tr onclick="window.location.href='{{ route('document.preview') }}?doc=' + encodeURIComponent('${doc.doc_name}')" class="border-b border-gray-100 hover:bg-green-50 transition-colors cursor-pointer group">
+                            <td class="py-3 pl-6 flex items-center gap-3">${typeBadge}<div><div class="font-bold text-gray-900 text-xs group-hover:text-[#168F4A] transition-colors">${doc.doc_name}</div><div class="text-[9px] text-gray-500 font-bold mt-0.5">${doc.size}</div></div></td>
+                            <td class="py-3 font-bold text-gray-700 text-xs"><span class="bg-gray-100 px-2 py-1 rounded border border-gray-200">${doc.project}</span></td>
                             <td class="py-3 text-gray-600 font-medium text-xs">${doc.uploader}</td>
-                            <td class="py-3 text-right pr-4 text-gray-500 text-xs">${doc.date}</td>
+                            <td class="py-3 text-right pr-6 text-gray-500 text-xs">${doc.date}</td>
                         </tr>
                     `;
                 });
@@ -737,29 +732,8 @@
         }
         function closePhaseModal() { const m = document.getElementById('phaseModal'), c = document.getElementById('phaseModalContent'); m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => { m.classList.add('hidden'); }, 300); }
 
-        // ========================================================
-        // 6. LIVE SYSTEM AUDIT TRAIL LOGIC & LAINNYA
-        // ========================================================
-        document.addEventListener('DOMContentLoaded', () => {
-            const links = document.querySelectorAll('a[href]:not([href="#"]):not([data-turbo="false"])');
-            links.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    if (this.target === '_blank') return;
-                    document.body.classList.add('fade-out');
-                });
-            });
-            for(let i = 0; i < 5; i++) { triggerNewLiveLog(); }
-            startLiveSimulation(); 
-        });
-
-        const fakeUsers = [
-            { name: 'Rizky Ramadhan', initial: 'RR' }, { name: 'Nadia Saphira', initial: 'NS' },
-            { name: 'Ahmad Fauzi', initial: 'AF' }, { name: 'Dewi Lestari', initial: 'DL' },
-            { name: 'Bima Sakti', initial: 'BS' }, { name: 'Putri Kusuma', initial: 'PK' },
-            { name: 'Hendra Gunawan', initial: 'HG' }, { name: 'Andi Wijaya', initial: 'AW' },
-            { name: 'Siti Nurhaliza', initial: 'SN' }, { name: 'I Putu Borneo', initial: 'IP' }
-        ];
-
+        // LIVE LOG SIMULATION
+        const fakeUsers = [{ name: 'Rizky Ramadhan', initial: 'RR' }, { name: 'Nadia Saphira', initial: 'NS' }, { name: 'Ahmad Fauzi', initial: 'AF' }, { name: 'Dewi Lestari', initial: 'DL' }, { name: 'Bima Sakti', initial: 'BS' }, { name: 'Putri Kusuma', initial: 'PK' }, { name: 'Hendra Gunawan', initial: 'HG' }, { name: 'Andi Wijaya', initial: 'AW' }, { name: 'Siti Nurhaliza', initial: 'SN' }, { name: 'I Putu Borneo', initial: 'IP' }];
         const fakeActions = [
             { label: 'Uploaded', color: 'text-green-700 bg-green-50 border-green-200', avatar: 'bg-green-100 text-green-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />' },
             { label: 'Asked AI', color: 'text-purple-700 bg-purple-50 border-purple-200', avatar: 'bg-purple-100 text-purple-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />' },
@@ -767,17 +741,12 @@
             { label: 'Previewed', color: 'text-gray-700 bg-gray-100 border-gray-300', avatar: 'bg-gray-200 text-gray-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />' },
             { label: 'Updated Metadata', color: 'text-blue-700 bg-blue-50 border-blue-200', avatar: 'bg-blue-100 text-blue-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />' }
         ];
-
         const fakeTargets = [
-            { doc: 'Drawing_Isometric_Area_2_RevA.pdf', loc: 'Project: RDMP RU V Balikpapan', type: 'file' },
-            { doc: 'MoM_Weekly_Meeting_EPC_03.docx', loc: 'Project: GRR Tuban', type: 'file' },
-            { doc: 'P&ID_Cilacap_Rev_FINAL.pdf', loc: 'Project: RFCC Cilacap', type: 'file' },
-            { doc: 'As-Built_Structure_Foundation.pdf', loc: 'Project: New DHT Dumai', type: 'file' },
-            { doc: 'Prompt: "Cari pasal penalti keterlambatan..."', loc: 'Module: AI Chatbot', type: 'ai' },
-            { doc: 'Keyword: "Valve Specification OR Piping"', loc: 'Module: Smart Search', type: 'search' }
+            { doc: 'Drawing_Isometric_Area_2_RevA.pdf', loc: 'Project: RDMP RU V Balikpapan', type: 'file' }, { doc: 'MoM_Weekly_Meeting_EPC_03.docx', loc: 'Project: GRR Tuban', type: 'file' }, { doc: 'P&ID_Cilacap_Rev_FINAL.pdf', loc: 'Project: RFCC Cilacap', type: 'file' }, { doc: 'As-Built_Structure_Foundation.pdf', loc: 'Project: New DHT Dumai', type: 'file' },
+            { doc: 'Prompt: "Cari pasal penalti keterlambatan..."', loc: 'Module: AI Chatbot', type: 'ai' }, { doc: 'Keyword: "Valve Specification OR Piping"', loc: 'Module: Smart Search', type: 'search' }
         ];
 
-        function generateRandomLog() {
+        function generateRandomLog(isHistorical = false) {
             const u = fakeUsers[Math.floor(Math.random() * fakeUsers.length)];
             const a = fakeActions[Math.floor(Math.random() * fakeActions.length)];
             let validTargets = [];
@@ -785,7 +754,14 @@
             else if (a.label === 'Searched') validTargets = fakeTargets.filter(t => t.type === 'search');
             else validTargets = fakeTargets.filter(t => t.type === 'file');
             const t = validTargets[Math.floor(Math.random() * validTargets.length)];
-            return { user: u.name, initial: u.initial, avatar_color: a.avatar, action_label: a.label, action_color: a.color, document: t.doc, location: t.loc, time: 'Just now', icon: a.icon };
+            
+            let timeStr = 'Just now';
+            if (isHistorical) {
+                let d = new Date();
+                d.setDate(d.getDate() - Math.floor(Math.random() * 30)); 
+                timeStr = d.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}) + ' ' + String(Math.floor(Math.random()*24)).padStart(2, '0') + ':' + String(Math.floor(Math.random()*60)).padStart(2, '0');
+            }
+            return { user: u.name, initial: u.initial, avatar_color: a.avatar, action_label: a.label, action_color: a.color, document: t.doc, location: t.loc, time: timeStr, icon: a.icon };
         }
 
         let currentQueries = {{ str_replace(',', '', $aiImpact['total_queries'] ?? '1250') }};
@@ -806,9 +782,19 @@
             const liveTbody = document.getElementById('liveAuditTableBody');
             if(!liveTbody) return;
             const liveTr = document.createElement('tr');
-            liveTr.className = 'border-b border-gray-100 hover:bg-green-50 transition-colors animate-new-row group'; 
+            liveTr.className = 'border-b border-gray-100 hover:bg-green-50 transition-colors animate-new-row group cursor-pointer'; 
+            
+            // Arahkan ke halaman eksternal saat file log diklik
+            if(log.action_label !== 'Asked AI' && log.action_label !== 'Searched') {
+                liveTr.onclick = function() { window.location.href = '{{ route('document.preview') }}?doc=' + encodeURIComponent(log.document); };
+            } else if (log.action_label === 'Asked AI') {
+                liveTr.onclick = function() { window.location.href = '{{ route('chat.ai') }}'; };
+            } else {
+                liveTr.onclick = function() { window.location.href = '{{ route('smart.search') }}'; };
+            }
+
             liveTr.innerHTML = `
-                <td class="py-2.5 pl-3 flex items-center gap-3"><div class="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black border-2 border-white shadow-md ${log.avatar_color}">${log.initial}</div><span class="font-bold text-gray-800 text-xs group-hover:text-[#168F4A] transition-colors">${log.user}</span></td>
+                <td class="py-2.5 pl-3 flex items-center gap-3"><div class="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black border border-white shadow-sm ${log.avatar_color}">${log.initial}</div><span class="font-bold text-gray-800 text-xs group-hover:text-[#168F4A] transition-colors">${log.user}</span></td>
                 <td class="py-2.5"><span class="px-2.5 py-1 rounded-lg text-[9px] font-bold border flex items-center gap-1.5 w-fit shadow-sm ${log.action_color}"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">${log.icon}</svg>${log.action_label}</span></td>
                 <td class="py-2.5"><div class="font-bold text-gray-900 text-xs truncate max-w-[200px] xl:max-w-[350px]" title="${safeTitle}">${log.document}</div><div class="text-[9px] text-gray-500 mt-0.5"><span class="font-bold uppercase tracking-wider">${log.location}</span></div></td>
                 <td class="py-2.5 text-right pr-3"><span class="text-[10px] text-gray-500 font-semibold">${log.time}</span></td>`;
@@ -826,14 +812,19 @@
             }, nextInterval);
         }
 
-        let currentOnline = 42;
-        setInterval(() => {
-            let fluctuation = Math.floor(Math.random() * 6) - 2; 
-            currentOnline += fluctuation;
-            if(currentOnline < 35) currentOnline = 35; 
-            if(currentOnline > 55) currentOnline = 55; 
-            if(document.getElementById('live-online-counter')) document.getElementById('live-online-counter').innerText = currentOnline;
-        }, 3500); 
+        document.addEventListener('DOMContentLoaded', () => {
+            for(let i = 0; i < 5; i++) { triggerNewLiveLog(); }
+            startLiveSimulation(); 
+            
+            let currentOnline = 42;
+            setInterval(() => {
+                let fluctuation = Math.floor(Math.random() * 6) - 2; 
+                currentOnline += fluctuation;
+                if(currentOnline < 35) currentOnline = 35; 
+                if(currentOnline > 55) currentOnline = 55; 
+                if(document.getElementById('live-online-counter')) document.getElementById('live-online-counter').innerText = currentOnline;
+            }, 3500); 
+        });
     </script>
 </body>
 </html>

@@ -8,16 +8,23 @@ use Carbon\CarbonPeriod;
 
 class DashboardController extends Controller
 {
+    // =========================================================================
+    // 1. DASHBOARD UTAMA
+    // =========================================================================
     public function index(Request $request)
     {
+        // 1. Filter Setup
         $filterYear = $request->input('year', 'CURRENT'); 
         $filterMonth = $request->input('month', 'ALL');     
         $filterProject = $request->input('project', 'ALL'); 
 
-        $currentDate = Carbon::create(2026, 2, 19); 
+        // TIMELINE REFERENCE: APRIL 2026
+        $currentDate = Carbon::create(2026, 4, 9); 
         $currentYear = 2026;
-        $currentMonth = 2; 
+        $currentMonth = 4; 
+        $effectiveYear = ($filterYear === 'CURRENT' || $filterYear === 'ALL') ? $currentYear : (int)$filterYear;
 
+        // 2. Project Data
         $projectsData = [
             ['name' => 'RDMP RU V Balikpapan Phase I', 'color' => '#FF2E2E'], 
             ['name' => 'New Polypropylene Plant Balongan', 'color' => '#FF6B00'], 
@@ -43,11 +50,10 @@ class DashboardController extends Controller
             ['name' => 'RDMP RU V Lawe - Lawe', 'color' => '#E74C3C'], 
         ];
 
+        // 3. X-Axis Generator
         $chartCategories = [];   
         $chartTooltipDates = []; 
         $dynamicChartTitle = "";
-
-        $effectiveYear = ($filterYear === 'CURRENT' || $filterYear === 'ALL') ? $currentYear : (int)$filterYear;
 
         if ($filterMonth !== 'ALL') {
             $startDate = Carbon::createFromDate($effectiveYear, $filterMonth, 1)->startOfMonth();
@@ -61,7 +67,7 @@ class DashboardController extends Controller
                 $dayStr = $date->format('d');
                 $chartCategories[] = $dayStr; 
                 if ($filterYear === 'ALL') {
-                    $chartTooltipDates[] = $dayStr . " " . $monthNameShort . " (Total 2025-2026)";
+                    $chartTooltipDates[] = $dayStr . " " . $monthNameShort . " (2025-2026)";
                 } else {
                     $chartTooltipDates[] = $date->format('d M Y');
                 }
@@ -79,6 +85,7 @@ class DashboardController extends Controller
             }
         }
 
+        // 4. Data Generation Logic
         $barChartData = []; 
         $waveChartData = []; 
         $grandTotalDocuments = 0; 
@@ -91,29 +98,28 @@ class DashboardController extends Controller
 
             for ($i = 0; $i < count($chartCategories); $i++) {
                 $val = 0;
-                $shouldGenerate = true;
-                if ($filterYear === 'ALL') {
-                    foreach ([2025, 2026] as $simYear) {
-                        if ($filterMonth !== 'ALL') {
-                             $base = $isGiantProject ? rand(300, 500) : rand(10, 50);
-                        } else {
-                             $base = $isGiantProject ? rand(12000, 16000) : rand(800, 2000);
+
+                if ($filterMonth !== 'ALL') {
+                    $day = $i + 1;
+                    $generateDaily = function($yearToSim) use ($day, $filterMonth, $currentYear, $currentMonth, $currentDate, $isGiantProject) {
+                        if ($yearToSim == $currentYear) {
+                            if ($filterMonth > $currentMonth) return 0;
+                            if ($filterMonth == $currentMonth && $day > $currentDate->day) return 0;
                         }
-                        $variance = rand(90, 110) / 100;
-                        $val += floor($base * $variance);
-                    }
+                        return $isGiantProject ? rand(300, 500) : rand(10, 50);
+                    };
+
+                    $val = ($filterYear === 'ALL') ? $generateDaily(2025) + $generateDaily(2026) : $generateDaily($effectiveYear);
                 } else {
-                    if ($filterMonth !== 'ALL') {
-                        $day = $i + 1;
-                        if ($effectiveYear == $currentYear && $filterMonth == $currentMonth && $day > 19) $shouldGenerate = false;
-                        if ($effectiveYear == $currentYear && $filterMonth > $currentMonth) $shouldGenerate = false;
-                        if ($shouldGenerate) $val = $isGiantProject ? rand(300, 500) : rand(10, 50);
-                    } else {
-                        $month = $i + 1;
-                        if ($effectiveYear == $currentYear && $month > $currentMonth) $shouldGenerate = false;
-                        if ($shouldGenerate) $val = $isGiantProject ? rand(15000, 20000) : rand(800, 2500);
-                    }
+                    $month = $i + 1;
+                    $generateMonthly = function($yearToSim) use ($month, $currentYear, $currentMonth, $isGiantProject) {
+                        if ($yearToSim == $currentYear && $month > $currentMonth) return 0; 
+                        return $isGiantProject ? rand(15000, 20000) : rand(800, 2500);
+                    };
+
+                    $val = ($filterYear === 'ALL') ? $generateMonthly(2025) + $generateMonthly(2026) : $generateMonthly($effectiveYear);
                 }
+
                 $waveDataPoints[] = (int)$val;
                 $projectTotal += (int)$val;
             }
@@ -125,6 +131,7 @@ class DashboardController extends Controller
             }
         }
 
+        // Sorting
         usort($barChartData, function($a, $b) { return $b['total'] <=> $a['total']; });
         $barNamesOrder = array_column($barChartData, 'name');
         usort($waveChartData, function($a, $b) use ($barNamesOrder) {
@@ -133,10 +140,7 @@ class DashboardController extends Controller
             return $posA <=> $posB;
         });
 
-        $fullBarNames = array_column($barChartData, 'name');
-        $fullBarValues = array_column($barChartData, 'total');
-        $fullBarColors = array_column($barChartData, 'color');
-
+        // 5. Chart Arrays
         $top10Bar = array_slice($barChartData, 0, 10);
         $others10Bar = array_slice($barChartData, 10);
         $barNames = array_column($top10Bar, 'name');
@@ -144,16 +148,15 @@ class DashboardController extends Controller
         $barColors = array_column($top10Bar, 'color');
 
         if (!empty($others10Bar)) {
-            $sumOthers = 0;
-            foreach ($others10Bar as $item) $sumOthers += $item['total'];
+            $sumOthers = array_sum(array_column($others10Bar, 'total'));
             $barNames[] = 'Others (' . count($others10Bar) . ' Projects)';
             $barValues[] = $sumOthers;
             $barColors[] = '#CFD8DC';
         }
 
-        $fullWaveSeries = [];
-        foreach($waveChartData as $item) $fullWaveSeries[] = ['name' => $item['name'], 'data' => $item['data']];
-        $fullWaveColors = array_column($waveChartData, 'color');
+        $fullBarNames = array_column($barChartData, 'name');
+        $fullBarValues = array_column($barChartData, 'total');
+        $fullBarColors = array_column($barChartData, 'color');
 
         $top5Wave = array_slice($waveChartData, 0, 5);
         $others5Wave = array_slice($waveChartData, 5);
@@ -170,6 +173,11 @@ class DashboardController extends Controller
             $waveColors[] = '#CFD8DC';
         }
 
+        $fullWaveSeries = [];
+        foreach($waveChartData as $item) $fullWaveSeries[] = ['name' => $item['name'], 'data' => $item['data']];
+        $fullWaveColors = array_column($waveChartData, 'color');
+
+        // 6. Static Data & KPIs
         $kpiData = [
             'total_documents' => $grandTotalDocuments,
             'document_project' => floor($grandTotalDocuments * 0.76),
@@ -193,38 +201,68 @@ class DashboardController extends Controller
 
         $phaseDocuments = [
             '01. Initiation' => [
-                ['doc_name' => 'Project_Charter_RDMP_Balikpapan_Final.pdf', 'project' => 'RDMP RU V Balikpapan', 'uploader' => 'Andi Wijaya', 'date' => '18-Feb-2026', 'size' => '2.4 MB', 'type' => 'PDF'],
-                ['doc_name' => 'MoM_Kickoff_Meeting_Tuban.pdf', 'project' => 'GRR Tuban', 'uploader' => 'Budi Santoso', 'date' => '15-Feb-2026', 'size' => '1.1 MB', 'type' => 'PDF'],
-                ['doc_name' => 'Initial_Risk_Assessment_Cilacap.xlsx', 'project' => 'Biorefinery Cilacap', 'uploader' => 'Siti Nurhaliza', 'date' => '10-Feb-2026', 'size' => '845 KB', 'type' => 'XLSX'],
-                ['doc_name' => 'Stakeholder_Mapping_Dumai.docx', 'project' => 'New DHT Dumai', 'uploader' => 'Rina Melati', 'date' => '08-Feb-2026', 'size' => '520 KB', 'type' => 'DOCX'],
-                ['doc_name' => 'Business_Case_Approval_Form.pdf', 'project' => 'Olefin TPPI', 'uploader' => 'Hanif Naufal', 'date' => '05-Feb-2026', 'size' => '3.2 MB', 'type' => 'PDF'],
+                ['doc_name' => 'Project_Charter_RDMP_Balikpapan_Final.pdf', 'project' => 'RDMP RU V Balikpapan', 'uploader' => 'Andi Wijaya', 'date' => '08-Apr-2026', 'size' => '2.4 MB', 'type' => 'PDF'],
+                ['doc_name' => 'MoM_Kickoff_Meeting_Tuban.pdf', 'project' => 'GRR Tuban', 'uploader' => 'Budi Santoso', 'date' => '05-Apr-2026', 'size' => '1.1 MB', 'type' => 'PDF'],
+                ['doc_name' => 'Initial_Risk_Assessment_Cilacap.xlsx', 'project' => 'Biorefinery Cilacap', 'uploader' => 'Siti Nurhaliza', 'date' => '28-Mar-2026', 'size' => '845 KB', 'type' => 'XLSX'],
+                ['doc_name' => 'Stakeholder_Mapping_Dumai.docx', 'project' => 'New DHT Dumai', 'uploader' => 'Rina Melati', 'date' => '20-Mar-2026', 'size' => '520 KB', 'type' => 'DOCX'],
+                ['doc_name' => 'Business_Case_Approval_Form.pdf', 'project' => 'Olefin TPPI', 'uploader' => 'Hanif Naufal', 'date' => '15-Mar-2026', 'size' => '3.2 MB', 'type' => 'PDF'],
             ],
             '02. Pre-FS' => [
-                ['doc_name' => 'Pre_Feasibility_Study_Report_Dumai_v2.pdf', 'project' => 'New DHT Dumai', 'uploader' => 'Dimas Pratama', 'date' => '17-Feb-2026', 'size' => '8.6 MB', 'type' => 'PDF'],
-                ['doc_name' => 'Market_Analysis_Data_Tuban.xlsx', 'project' => 'GRR Tuban', 'uploader' => 'I Putu Borneo', 'date' => '12-Feb-2026', 'size' => '4.1 MB', 'type' => 'XLSX'],
-                ['doc_name' => 'Site_Selection_Criteria.pptx', 'project' => 'Petrochemical Jawa Barat', 'uploader' => 'Citra Dewi', 'date' => '09-Feb-2026', 'size' => '12.5 MB', 'type' => 'PPTX'],
-            ]
+                ['doc_name' => 'Pre_Feasibility_Study_Report_Dumai.pdf', 'project' => 'New DHT Dumai', 'uploader' => 'Dimas Pratama', 'date' => '07-Apr-2026', 'size' => '8.6 MB', 'type' => 'PDF'],
+                ['doc_name' => 'Market_Analysis_Data_Tuban.xlsx', 'project' => 'GRR Tuban', 'uploader' => 'I Putu Borneo', 'date' => '02-Apr-2026', 'size' => '4.1 MB', 'type' => 'XLSX'],
+                ['doc_name' => 'Site_Selection_Criteria.pptx', 'project' => 'Petrochemical Jawa Barat', 'uploader' => 'Citra Dewi', 'date' => '25-Mar-2026', 'size' => '12.5 MB', 'type' => 'PPTX'],
+                ['doc_name' => 'Environmental_Screening_Report.pdf', 'project' => 'PLBC Cilacap', 'uploader' => 'Ahmad Fauzi', 'date' => '20-Mar-2026', 'size' => '3.8 MB', 'type' => 'PDF'],
+                ['doc_name' => 'Initial_Capex_Estimate.xlsx', 'project' => 'RDMP RU IV Cilacap', 'uploader' => 'Nadia Saphira', 'date' => '10-Mar-2026', 'size' => '1.2 MB', 'type' => 'XLSX'],
+            ],
+            '03. Pre-FID/Early Work' => [
+                ['doc_name' => 'Land_Acquisition_Permit_Phase1.pdf', 'project' => 'GRR Tuban', 'uploader' => 'Bima Sakti', 'date' => '09-Apr-2026', 'size' => '5.5 MB', 'type' => 'PDF'],
+                ['doc_name' => 'Early_Works_Contract_Agreement.docx', 'project' => 'RDMP RU V Early Works 1', 'uploader' => 'Siti Nurhaliza', 'date' => '01-Apr-2026', 'size' => '1.8 MB', 'type' => 'DOCX'],
+                ['doc_name' => 'Soil_Investigation_Report.pdf', 'project' => 'New DHT Plaju', 'uploader' => 'Hendra Gunawan', 'date' => '28-Mar-2026', 'size' => '15.2 MB', 'type' => 'PDF'],
+                ['doc_name' => 'Site_Preparation_Schedule.xlsx', 'project' => 'Relokasi SPM Balongan', 'uploader' => 'Putri Kusuma', 'date' => '15-Mar-2026', 'size' => '900 KB', 'type' => 'XLSX'],
+                ['doc_name' => 'Local_Community_Socialization_MoM.pdf', 'project' => 'GRR Tuban', 'uploader' => 'Dewi Lestari', 'date' => '05-Mar-2026', 'size' => '2.1 MB', 'type' => 'PDF'],
+            ],
+            '04. BED' => [
+                ['doc_name' => 'Basic_Engineering_Design_Data.pdf', 'project' => 'RDMP RU VI Balongan Phase I', 'uploader' => 'Hanif Naufal', 'date' => '08-Apr-2026', 'size' => '22.4 MB', 'type' => 'PDF'],
+                ['doc_name' => 'Process_Flow_Diagram_Draft.pdf', 'project' => 'New Polypropylene Plant Balongan', 'uploader' => 'Andi Wijaya', 'date' => '05-Apr-2026', 'size' => '18.1 MB', 'type' => 'PDF'],
+                ['doc_name' => 'Equipment_List_Preliminary.xlsx', 'project' => 'RDMP RU V ISBL - OSBL', 'uploader' => 'Dimas Pratama', 'date' => '01-Apr-2026', 'size' => '3.5 MB', 'type' => 'XLSX'],
+                ['doc_name' => 'Utility_Consumption_Calculation.xlsx', 'project' => 'Green Refinery Plaju', 'uploader' => 'Rina Melati', 'date' => '20-Mar-2026', 'size' => '1.5 MB', 'type' => 'XLSX'],
+                ['doc_name' => 'Licensor_Technology_Agreement.pdf', 'project' => 'Olefin TPPI', 'uploader' => 'Budi Santoso', 'date' => '12-Mar-2026', 'size' => '4.7 MB', 'type' => 'PDF'],
+            ],
+            '05. FEED' => [
+                ['doc_name' => 'FEED_Executive_Summary_Rev1.pdf', 'project' => 'RDMP RU V Balikpapan Phase I', 'uploader' => 'Nadia Saphira', 'date' => '09-Apr-2026', 'size' => '14.3 MB', 'type' => 'PDF'],
+                ['doc_name' => '3D_Model_Review_Report.pdf', 'project' => 'RFCC Cilacap', 'uploader' => 'Hendra Gunawan', 'date' => '04-Apr-2026', 'size' => '28.9 MB', 'type' => 'PDF'],
+                ['doc_name' => 'Instrument_Index_Final.xlsx', 'project' => 'New EWTP Balongan', 'uploader' => 'Citra Dewi', 'date' => '29-Mar-2026', 'size' => '5.2 MB', 'type' => 'XLSX'],
+                ['doc_name' => 'Hazard_and_Operability_HAZOP.pdf', 'project' => 'RDMP RU V Balikpapan Phase I', 'uploader' => 'Ahmad Fauzi', 'date' => '18-Mar-2026', 'size' => '11.5 MB', 'type' => 'PDF'],
+                ['doc_name' => 'Electrical_Single_Line_Diagram.pdf', 'project' => 'Restorasi Tanki Balongan', 'uploader' => 'Bima Sakti', 'date' => '10-Mar-2026', 'size' => '8.4 MB', 'type' => 'PDF'],
+            ],
         ];
 
         $qaRecentDocs = [
-            ['name' => 'Tes Kirim File Fungsi.pdf', 'type' => 'pdf', 'category' => 'Fungsi', 'security' => 'Public', 'date' => '04-Feb-2026 09:20:23'],
-            ['name' => 'Mockup New Brain Dashboard.jpg', 'type' => 'image', 'category' => 'Fungsi', 'security' => 'Public', 'date' => '05-Feb-2026 10:38:10'],
-            ['name' => 'Minutes_of_Meeting_VP.docx', 'type' => 'word', 'category' => 'Project', 'security' => 'Internal', 'date' => '17-Feb-2026 09:12:00']
+            ['name' => 'P&ID_RDMP_Balikpapan_v2.pdf', 'type' => 'pdf', 'category' => 'Project', 'security' => 'Internal', 'date' => '09-Apr-2026 08:15:00'],
+            ['name' => 'MoM_Weekly_Progress.docx', 'type' => 'word', 'category' => 'Project', 'security' => 'Internal', 'date' => '08-Apr-2026 09:12:00'],
+            ['name' => 'Mockup_New_Brain_Dashboard.jpg', 'type' => 'image', 'category' => 'Fungsi', 'security' => 'Public', 'date' => '07-Apr-2026 10:38:10'],
+            ['name' => 'Design_Review_Notes_Tuban.pdf', 'type' => 'pdf', 'category' => 'Project', 'security' => 'Internal', 'date' => '05-Apr-2026 14:00:00']
         ];
 
         $qaRecentOpen = [
-            ['name' => 'P&ID_RDMP_Balikpapan_v2.pdf', 'type' => 'pdf', 'category' => 'Project', 'security' => 'Internal', 'date' => '19-Feb-2026 08:15:00'],
-            ['name' => 'Draft_Kontrak_EPC_Tuban.pdf', 'type' => 'pdf', 'category' => 'Project', 'security' => 'Restricted', 'date' => '18-Feb-2026 14:20:00']
+            ['name' => 'Draft_Kontrak_EPC_Tuban.pdf', 'type' => 'pdf', 'category' => 'Project', 'security' => 'Restricted', 'date' => '09-Apr-2026 14:20:00'],
+            ['name' => 'Budget_Plan_Q2_2026.xlsx', 'type' => 'excel', 'category' => 'Fungsi', 'security' => 'Confidential', 'date' => '08-Apr-2026 11:15:00'],
+            ['name' => 'Architecture_Blueprint_Phase1.pdf', 'type' => 'pdf', 'category' => 'Project', 'security' => 'Internal', 'date' => '06-Apr-2026 09:30:00'],
+            ['name' => 'Vendor_List_Approved_2026.xlsx', 'type' => 'excel', 'category' => 'Fungsi', 'security' => 'Internal', 'date' => '05-Apr-2026 16:45:00']
         ];
 
         $qaConfidential = [
-            ['name' => 'Board_Resolution_Q1_2026.pdf', 'type' => 'pdf', 'category' => 'Fungsi', 'security' => 'Confidential', 'date' => '10-Feb-2026 11:00:00'],
-            ['name' => 'Financial_Audit_Report.xlsx', 'type' => 'excel', 'category' => 'Fungsi', 'security' => 'Confidential', 'date' => '01-Feb-2026 09:30:00']
+            ['name' => 'Board_Resolution_Q1_2026.pdf', 'type' => 'pdf', 'category' => 'Fungsi', 'security' => 'Confidential', 'date' => '05-Apr-2026 11:00:00'],
+            ['name' => 'Financial_Audit_Report.xlsx', 'type' => 'excel', 'category' => 'Fungsi', 'security' => 'Confidential', 'date' => '01-Apr-2026 09:30:00'],
+            ['name' => 'Bidding_Evaluation_Summary.docx', 'type' => 'word', 'category' => 'Project', 'security' => 'Confidential', 'date' => '28-Mar-2026 14:00:00'],
+            ['name' => 'Risk_Register_Critical_Projects.pdf', 'type' => 'pdf', 'category' => 'Project', 'security' => 'Confidential', 'date' => '25-Mar-2026 10:15:00']
         ];
 
         $qaHandover = [
-            ['name' => 'As-Built_Drawing_Area_5.pdf', 'type' => 'pdf', 'category' => 'Project', 'status' => 'Synced to BRAIN', 'status_color' => 'bg-blue-50 text-blue-600 border-blue-200', 'date' => '19-Feb-2026 16:45:00'],
-            ['name' => 'Final_HAZOP_Report.docx', 'type' => 'word', 'category' => 'Project', 'status' => 'Indexing', 'status_color' => 'bg-gray-100 text-gray-600 border-gray-300', 'date' => '19-Feb-2026 15:30:00']
+            ['name' => 'As-Built_Drawing_Area_5.pdf', 'type' => 'pdf', 'category' => 'Project', 'status' => 'Synced to BRAIN', 'status_color' => 'bg-blue-50 text-blue-600 border-blue-200', 'date' => '09-Apr-2026 16:45:00'],
+            ['name' => 'Final_HAZOP_Report.docx', 'type' => 'word', 'category' => 'Project', 'status' => 'Indexing', 'status_color' => 'bg-gray-100 text-gray-600 border-gray-300', 'date' => '08-Apr-2026 15:30:00'],
+            ['name' => 'Handover_Certificate_Unit_A.pdf', 'type' => 'pdf', 'category' => 'Project', 'status' => 'Verified', 'status_color' => 'bg-green-50 text-green-600 border-green-200', 'date' => '05-Apr-2026 11:00:00'],
+            ['name' => 'Equipment_Data_Sheets_All.xlsx', 'type' => 'excel', 'category' => 'Project', 'status' => 'Synced to BRAIN', 'status_color' => 'bg-blue-50 text-blue-600 border-blue-200', 'date' => '02-Apr-2026 09:20:00']
         ];
 
         $aiImpact = [
@@ -237,11 +275,6 @@ class DashboardController extends Controller
             '#HAZOP_Balongan', '#Kontrak_EPC_Tuban', '#P&ID_Cilacap'
         ];
 
-        $dummyFiles = [
-            ['name' => 'Tes Kirim File Fungsi', 'type' => 'pdf', 'category' => 'Fungsi', 'security' => 'Public', 'date' => '04-Feb-2026 09:20:23'],
-            ['name' => 'Mockup New Brain Dashboard', 'type' => 'image', 'category' => 'Fungsi', 'security' => 'Public', 'date' => '05-Feb-2026 10:38:10']
-        ];
-
         return view('brain', compact(
             'kpiData', 'projectsData', 
             'fullBarNames', 'fullBarValues', 'fullBarColors',
@@ -249,10 +282,66 @@ class DashboardController extends Controller
             'fullWaveSeries', 'fullWaveColors', 
             'waveSeries', 'waveColors',
             'lifecycleData', 'chartCategories', 'chartTooltipDates', 
-            'filterYear', 'filterMonth', 'filterProject', 'dummyFiles', 
+            'filterYear', 'filterMonth', 'filterProject',
             'dynamicChartTitle', 'phaseDocuments',
             'qaRecentDocs', 'qaRecentOpen', 'qaConfidential', 'qaHandover',
             'aiImpact', 'trendingKeywords'
         ));
+    }
+
+    // =========================================================================
+    // 2. SMART SEARCH ROUTE
+    // =========================================================================
+    public function smartSearch(Request $request)
+    {
+        $query = $request->input('q', '');
+        $results = [];
+
+        // Dummy search logic based on keyword (menggunakan dummy di blade yang anda kirim)
+        if (!empty($query)) {
+            $results = [
+                ['title' => 'Project_Charter_RDMP_Balikpapan_Final.pdf', 'project' => 'RDMP RU V Balikpapan', 'category' => 'Project Document'],
+                ['title' => 'MoM_Kickoff_Meeting_Tuban.pdf', 'project' => 'GRR Tuban', 'category' => 'Meeting Notes'],
+                ['title' => 'Draft_Kontrak_EPC_Tuban.pdf', 'project' => 'GRR Tuban', 'category' => 'Legal Contract'],
+            ];
+        }
+
+        return view('smart-search', compact('query', 'results'));
+    }
+
+    // =========================================================================
+    // 3. AI CHAT ROUTE
+    // =========================================================================
+    public function chatAi()
+    {
+        // Parameter untuk membuat Chat AI terlihat mengerti dashboard
+        $kpiData = [
+            'total_documents' => 785420,
+            'document_project' => 589065,
+            'active_users' => 202
+        ];
+        
+        return view('chat-ai', compact('kpiData'));
+    }
+
+    // =========================================================================
+    // 4. DOCUMENT PREVIEW ROUTE
+    // =========================================================================
+    public function previewDocument(Request $request)
+    {
+        $docName = $request->input('doc', 'Unknown_Document.pdf');
+        
+        // Ekstrak Metadata (Dummy untuk tampilan Preview UI Anda)
+        $ext = pathinfo($docName, PATHINFO_EXTENSION) ?: 'pdf';
+        
+        $metadata = [
+            'title' => $docName,
+            'type'  => strtoupper($ext),
+            'size'  => rand(1, 20) . '.' . rand(1, 9) . ' MB',
+            'date'  => Carbon::now()->subDays(rand(1, 10))->format('d-M-Y H:i:s'),
+            'security' => str_contains(strtolower($docName), 'kontrak') || str_contains(strtolower($docName), 'audit') ? 'Confidential' : 'Internal'
+        ];
+
+        return view('preview', compact('metadata'));
     }
 }
