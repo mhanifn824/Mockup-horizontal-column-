@@ -201,7 +201,7 @@
                             <p class="text-xs text-orange-600 font-black uppercase tracking-wider flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
                                 Trending Searches
-                                <span class="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded shadow-sm normal-case">Last 30 Days</span>
+                                <span class="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded shadow-sm normal-case">Live Updates</span>
                             </p>
                             <div class="flex items-center gap-2">
                                 <button onclick="exportTrendingData()" class="text-orange-500 hover:text-orange-700 bg-white hover:bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition flex items-center gap-1 cursor-pointer">
@@ -211,13 +211,9 @@
                                 <button onclick="window.location.href='{{ route('smart.search') }}'" class="text-[11px] text-blue-700 font-bold hover:text-white flex items-center gap-1 bg-blue-50 hover:bg-blue-600 px-3 py-1.5 rounded-lg transition border border-blue-200 shadow-sm cursor-pointer">Open Smart Search <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg></button>
                             </div>
                         </div>
-                        <div class="flex flex-col gap-2">
-                            @foreach($trendingKeywords ?? [] as $keyword)
-                            <div onclick="window.location.href='{{ route('smart.search') }}?q=' + encodeURIComponent('{{ $keyword }}')" class="trending-item px-3 py-2 bg-gray-50 border border-gray-200 text-gray-700 text-xs font-bold rounded-lg truncate hover:bg-orange-50 hover:text-orange-700 hover:border-orange-300 transition-all duration-500 cursor-pointer block shadow-sm">
-                                {{ $keyword }}
+                        
+                        <div id="trending-searches-container" class="flex flex-col gap-2 transition-opacity duration-300">
                             </div>
-                            @endforeach
-                        </div>
                     </div>
                 </div>
 
@@ -298,7 +294,7 @@
 
                 <div class="bg-white p-2 rounded-xl shadow-sm border border-gray-100 mt-4 transition-all duration-300 mb-5 relative pt-4 pb-2">
                     <div class="absolute top-4 right-4 z-10">
-                        <button onclick="toggleQuickAccess()" class="text-[10px] text-blue-700 font-bold hover:bg-blue-100 flex items-center gap-1 focus:outline-none bg-blue-50 px-3 py-1.5 rounded-md border border-blue-200 transition-colors shadow-sm">
+                        <button onclick="toggleQuickAccess()" class="text-[10px] text-blue-700 font-bold hover:bg-blue-100 flex items-center gap-1 focus:outline-none bg-blue-50 px-3 py-1.5 rounded-md border border-blue-200 transition-colors shadow-sm cursor-pointer">
                             <span id="qaToggleText">Hide table</span>
                             <svg id="qaToggleIcon" class="w-3.5 h-3.5 transition-transform duration-300 transform rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7" /></svg>
                         </button>
@@ -424,14 +420,14 @@
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                         Export to Excel
                     </button>
-                    <button onclick="closeFullLogModal()" class="text-gray-400 hover:text-red-600 p-2 rounded-xl hover:bg-red-50 transition">
+                    <button onclick="closeFullLogModal()" class="text-gray-400 hover:text-red-600 p-2 rounded-xl hover:bg-red-50 transition focus:outline-none">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </div>
             </div>
             <div class="p-0 overflow-y-auto flex-grow custom-scrollbar">
                 <table class="w-full text-left text-xs" id="fullLogTable">
-                    <thead class="text-[10px] text-gray-500 uppercase font-black border-b-2 border-gray-200 bg-white sticky top-0 shadow-sm">
+                    <thead class="text-[10px] text-gray-500 uppercase font-black border-b-2 border-gray-200 bg-white sticky top-0 shadow-sm z-10">
                         <tr>
                             <th class="py-3 pl-6">User</th>
                             <th class="py-3">Action</th>
@@ -582,7 +578,7 @@
 
         function exportTrendingData() {
             let csvContent = "data:text/csv;charset=utf-8,Keyword,Search Volume\n";
-            const kws = ['#HAZOP_Balongan', '#Kontrak_EPC_Tuban', '#P&ID_Cilacap', 'Drawings Area 5', 'Budget Q2'];
+            const kws = ['HAZOP Balongan Phase 1', 'Kontrak EPC Tuban', 'P&ID Cilacap Rev A', 'Drawing Isometric Area 5', 'Budget Plan Q2 2026', 'Risk Assessment Dumai'];
             kws.forEach(kw => { csvContent += `"${kw}",${Math.floor(Math.random()*150 + 50)}\n`; });
             var encodedUri = encodeURI(csvContent);
             var link = document.createElement("a");
@@ -590,6 +586,46 @@
             link.setAttribute("download", "Trending_Searches_Last_30Days.csv");
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
+
+        // ========================================================
+        // LIVE SIMULATION TRENDING SEARCHES
+        // ========================================================
+        const enterpriseKeywords = [
+            'HAZOP Balongan Phase 1',
+            'Kontrak EPC Tuban',
+            'P&ID Cilacap Rev A',
+            'Drawing Isometric Area 5',
+            'Budget Plan Q2 2026',
+            'Risk Assessment Dumai',
+            'Vendor List Approved',
+            'Minutes of Meeting Kickoff',
+            'Environmental Screening',
+            'Process Flow Diagram'
+        ];
+
+        function updateTrendingSearches() {
+            const container = document.getElementById('trending-searches-container');
+            if (!container) return;
+
+            const shuffled = [...enterpriseKeywords].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 3);
+
+            container.style.opacity = '0.5';
+
+            setTimeout(() => {
+                container.innerHTML = '';
+                selected.forEach(keyword => {
+                    const div = document.createElement('div');
+                    div.onclick = () => window.location.href = `{{ route('smart.search') }}?q=${encodeURIComponent(keyword)}`;
+                    div.className = 'trending-item px-3 py-2 bg-gray-50 border border-gray-200 text-gray-700 text-xs font-bold rounded-lg truncate hover:bg-orange-50 hover:text-orange-700 hover:border-orange-300 transition-all duration-500 cursor-pointer block shadow-sm';
+                    div.innerText = keyword;
+                    container.appendChild(div);
+                });
+                container.style.opacity = '1';
+            }, 300); 
+        }
+
+        setInterval(updateTrendingSearches, 4500);
 
         // ========================================================
         // CHARTS & DATA LOGIC (APEXCHARTS)
@@ -813,6 +849,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            updateTrendingSearches(); // Panggil pertama kali
             for(let i = 0; i < 5; i++) { triggerNewLiveLog(); }
             startLiveSimulation(); 
             
@@ -824,6 +861,15 @@
                 if(currentOnline > 55) currentOnline = 55; 
                 if(document.getElementById('live-online-counter')) document.getElementById('live-online-counter').innerText = currentOnline;
             }, 3500); 
+        });
+
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.target === '_blank') return;
+                e.preventDefault();
+                document.body.classList.add('fade-out');
+                setTimeout(() => { window.location.href = this.href; }, 200);
+            });
         });
     </script>
 </body>

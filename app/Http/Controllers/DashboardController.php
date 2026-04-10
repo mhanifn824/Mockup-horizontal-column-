@@ -24,64 +24,73 @@ class DashboardController extends Controller
         $currentMonth = 4; 
         $effectiveYear = ($filterYear === 'CURRENT' || $filterYear === 'ALL') ? $currentYear : (int)$filterYear;
 
-        // 2. Project Data
+        // 2. Project Data (DIUPDATE DENGAN WARNA HIGH-CONTRAST / KATEGORIAL)
         $projectsData = [
-            ['name' => 'RDMP RU V Balikpapan Phase I', 'color' => '#FF2E2E'], 
-            ['name' => 'New Polypropylene Plant Balongan', 'color' => '#FF6B00'], 
-            ['name' => 'New DHT Dumai', 'color' => '#FF9F1C'], 
-            ['name' => 'Restorasi Tanki Balongan', 'color' => '#FFC107'], 
-            ['name' => 'SPL SPM Balongan', 'color' => '#007BFF'], 
-            ['name' => 'New DHT Cilacap', 'color' => '#00C6FF'], 
-            ['name' => 'RFCC Cilacap', 'color' => '#00BCD4'], 
-            ['name' => 'Biorefinery Cilacap', 'color' => '#2196F3'], 
-            ['name' => 'PLBC Cilacap', 'color' => '#4CAF50'], 
-            ['name' => 'Olefin TPPI', 'color' => '#8BC34A'], 
-            ['name' => 'RDMP RU IV Cilacap', 'color' => '#CDDC39'], 
-            ['name' => 'Relokasi SPM Balongan', 'color' => '#009688'], 
-            ['name' => 'New DHT Plaju', 'color' => '#9C27B0'], 
-            ['name' => 'Revitalisasi RCC RU VI Balongan', 'color' => '#E91E63'], 
-            ['name' => 'Green Refinery Plaju', 'color' => '#673AB7'], 
-            ['name' => 'New EWTP Balongan', 'color' => '#FF4081'], 
-            ['name' => 'RDMP RU VI Balongan Phase I', 'color' => '#FF5722'], 
-            ['name' => 'RDMP RU V Early Works 1', 'color' => '#2ECC71'], 
-            ['name' => 'GRR Tuban', 'color' => '#F1C40F'], 
-            ['name' => 'Petrochemical Jawa Barat', 'color' => '#1ABC9C'], 
-            ['name' => 'RDMP RU V ISBL - OSBL', 'color' => '#3498DB'], 
-            ['name' => 'RDMP RU V Lawe - Lawe', 'color' => '#E74C3C'], 
+            ['name' => 'RDMP RU V Balikpapan Phase I', 'color' => '#0052CC'], // Deep Blue
+            ['name' => 'New Polypropylene Plant Balongan', 'color' => '#E13B26'], // Strong Red
+            ['name' => 'New DHT Dumai', 'color' => '#00875A'], // Strong Green
+            ['name' => 'Restorasi Tanki Balongan', 'color' => '#FF991F'], // Vivid Orange
+            ['name' => 'SPL SPM Balongan', 'color' => '#6554C0'], // Purple
+            ['name' => 'New DHT Cilacap', 'color' => '#00B8D9'], // Cyan
+            ['name' => 'RFCC Cilacap', 'color' => '#FF5630'], // Coral
+            ['name' => 'Biorefinery Cilacap', 'color' => '#36B37E'], // Light Green
+            ['name' => 'PLBC Cilacap', 'color' => '#FFC400'], // Yellow
+            ['name' => 'Olefin TPPI', 'color' => '#9747FF'], // Bright Violet
+            ['name' => 'RDMP RU IV Cilacap', 'color' => '#172B4D'], // Slate Dark
+            ['name' => 'Relokasi SPM Balongan', 'color' => '#006644'], // Dark Green
+            ['name' => 'New DHT Plaju', 'color' => '#BF2600'], // Dark Red
+            ['name' => 'Revitalisasi RCC RU VI Balongan', 'color' => '#403294'], // Dark Purple
+            ['name' => 'Green Refinery Plaju', 'color' => '#008DA6'], // Teal
+            ['name' => 'New EWTP Balongan', 'color' => '#FF7A00'], // Amber
+            ['name' => 'RDMP RU VI Balongan Phase I', 'color' => '#D97A80'], // Rose
+            ['name' => 'RDMP RU V Early Works 1', 'color' => '#79E2F2'], // Pale Cyan
+            ['name' => 'GRR Tuban', 'color' => '#57D9A3'], // Mint
+            ['name' => 'Petrochemical Jawa Barat', 'color' => '#FF8F73'], // Salmon
+            ['name' => 'RDMP RU V ISBL - OSBL', 'color' => '#C0B6F2'], // Lavender
+            ['name' => 'RDMP RU V Lawe - Lawe', 'color' => '#FFE380'], // Pale Yellow
         ];
 
-        // 3. X-Axis Generator
+        // 3. X-Axis Generator & Logic Dynamic Title + Tooltips
         $chartCategories = [];   
         $chartTooltipDates = []; 
         $dynamicChartTitle = "";
 
         if ($filterMonth !== 'ALL') {
+            $monthName = Carbon::createFromDate(null, $filterMonth, 1)->format('F');
+            $monthNameShort = Carbon::createFromDate(null, $filterMonth, 1)->format('M');
+            
+            if ($filterYear === 'ALL') {
+                $dynamicChartTitle = $monthName . " (Aggregate 2025 - 2026)";
+            } else {
+                $dynamicChartTitle = $monthName . " " . $effectiveYear;
+            }
+
             $startDate = Carbon::createFromDate($effectiveYear, $filterMonth, 1)->startOfMonth();
             $endDate = Carbon::createFromDate($effectiveYear, $filterMonth, 1)->endOfMonth();
-            
             $period = CarbonPeriod::create($startDate, '1 day', $endDate);
-            $monthNameShort = Carbon::createFromDate(null, $filterMonth, 1)->format('M');
-            $monthNameFull = Carbon::createFromDate(null, $filterMonth, 1)->format('F');
             
             foreach ($period as $date) {
                 $dayStr = $date->format('d');
                 $chartCategories[] = $dayStr; 
                 if ($filterYear === 'ALL') {
-                    $chartTooltipDates[] = $dayStr . " " . $monthNameShort . " (2025-2026)";
+                    $chartTooltipDates[] = $dayStr . " " . $monthNameShort . " (2025 - 2026)";
                 } else {
                     $chartTooltipDates[] = $date->format('d M Y');
                 }
             }
-            $dynamicChartTitle = ($filterYear === 'ALL') ? $monthNameFull . " (Total 2025-2026)" : $monthNameFull . " " . $effectiveYear;
         } else {
             $chartCategories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             if ($filterYear === 'ALL') {
                 $dynamicChartTitle = "Aggregate Monthly (2025 - 2026)";
-                foreach ($chartCategories as $cat) { $chartTooltipDates[] = $cat . " (Total 2025-2026)"; }
+                foreach ($chartCategories as $cat) {
+                    $chartTooltipDates[] = $cat . " (Total 2025-2026)";
+                }
             } else {
                 $yearLabel = ($filterYear === 'CURRENT') ? $currentYear : $filterYear;
-                $dynamicChartTitle = ($filterYear === 'CURRENT') ? "Current Year (YTD)" : "Year " . $filterYear;
-                foreach ($chartCategories as $cat) { $chartTooltipDates[] = $cat . " " . $yearLabel; }
+                $dynamicChartTitle = "Year " . $yearLabel;
+                foreach ($chartCategories as $cat) {
+                    $chartTooltipDates[] = $cat . " " . $yearLabel;
+                }
             }
         }
 
@@ -103,13 +112,18 @@ class DashboardController extends Controller
                     $day = $i + 1;
                     $generateDaily = function($yearToSim) use ($day, $filterMonth, $currentYear, $currentMonth, $currentDate, $isGiantProject) {
                         if ($yearToSim == $currentYear) {
-                            if ($filterMonth > $currentMonth) return 0;
-                            if ($filterMonth == $currentMonth && $day > $currentDate->day) return 0;
+                            if ($filterMonth > $currentMonth) return 0; 
+                            if ($filterMonth == $currentMonth && $day > $currentDate->day) return 0; 
                         }
                         return $isGiantProject ? rand(300, 500) : rand(10, 50);
                     };
 
-                    $val = ($filterYear === 'ALL') ? $generateDaily(2025) + $generateDaily(2026) : $generateDaily($effectiveYear);
+                    if ($filterYear === 'ALL') {
+                        $val = $generateDaily(2025) + $generateDaily(2026); 
+                    } else {
+                        $val = $generateDaily($effectiveYear);
+                    }
+
                 } else {
                     $month = $i + 1;
                     $generateMonthly = function($yearToSim) use ($month, $currentYear, $currentMonth, $isGiantProject) {
@@ -117,7 +131,11 @@ class DashboardController extends Controller
                         return $isGiantProject ? rand(15000, 20000) : rand(800, 2500);
                     };
 
-                    $val = ($filterYear === 'ALL') ? $generateMonthly(2025) + $generateMonthly(2026) : $generateMonthly($effectiveYear);
+                    if ($filterYear === 'ALL') {
+                        $val = $generateMonthly(2025) + $generateMonthly(2026); 
+                    } else {
+                        $val = $generateMonthly($effectiveYear);
+                    }
                 }
 
                 $waveDataPoints[] = (int)$val;
@@ -126,7 +144,7 @@ class DashboardController extends Controller
 
             if ($isProjectActive) {
                 $barChartData[] = ['name' => $proj['name'], 'color' => $proj['color'], 'total' => $projectTotal];
-                $waveChartData[] = ['name' => $proj['name'], 'color' => $proj['color'], 'data' => $waveDataPoints, 'total_trend' => $projectTotal];
+                $waveChartData[] = ['name' => $proj['name'], 'color' => $proj['color'], 'data' => $waveDataPoints];
                 $grandTotalDocuments += $projectTotal;
             }
         }
@@ -146,14 +164,13 @@ class DashboardController extends Controller
         $barNames = array_column($top10Bar, 'name');
         $barValues = array_column($top10Bar, 'total');
         $barColors = array_column($top10Bar, 'color');
-
         if (!empty($others10Bar)) {
             $sumOthers = array_sum(array_column($others10Bar, 'total'));
             $barNames[] = 'Others (' . count($others10Bar) . ' Projects)';
             $barValues[] = $sumOthers;
             $barColors[] = '#CFD8DC';
         }
-
+        
         $fullBarNames = array_column($barChartData, 'name');
         $fullBarValues = array_column($barChartData, 'total');
         $fullBarColors = array_column($barChartData, 'color');
@@ -163,21 +180,20 @@ class DashboardController extends Controller
         $waveColors = array_column($top5Wave, 'color');
         $waveSeries = [];
         foreach($top5Wave as $item) $waveSeries[] = ['name' => $item['name'], 'data' => $item['data']];
-
         if (!empty($others5Wave)) {
             $othersWaveData = array_fill(0, count($chartCategories), 0);
             foreach ($others5Wave as $item) {
                 for($k=0; $k<count($chartCategories); $k++) $othersWaveData[$k] += $item['data'][$k];
             }
-            $waveSeries[] = ['name' => 'Others (' . count($others5Wave) . ' Projects)', 'data' => $othersWaveData];
+            $waveSeries[] = ['name' => 'Others', 'data' => $othersWaveData];
             $waveColors[] = '#CFD8DC';
         }
-
+        
         $fullWaveSeries = [];
         foreach($waveChartData as $item) $fullWaveSeries[] = ['name' => $item['name'], 'data' => $item['data']];
         $fullWaveColors = array_column($waveChartData, 'color');
 
-        // 6. Static Data & KPIs
+        // 6. Static Data
         $kpiData = [
             'total_documents' => $grandTotalDocuments,
             'document_project' => floor($grandTotalDocuments * 0.76),
@@ -271,8 +287,11 @@ class DashboardController extends Controller
             'growth' => '+18%'
         ];
 
+        // TIDAK ADA HASHTAG
         $trendingKeywords = [
-            '#HAZOP_Balongan', '#Kontrak_EPC_Tuban', '#P&ID_Cilacap'
+            'HAZOP Balongan Phase 1', 
+            'Kontrak EPC Tuban', 
+            'P&ID Cilacap Rev A',
         ];
 
         return view('brain', compact(
@@ -282,7 +301,7 @@ class DashboardController extends Controller
             'fullWaveSeries', 'fullWaveColors', 
             'waveSeries', 'waveColors',
             'lifecycleData', 'chartCategories', 'chartTooltipDates', 
-            'filterYear', 'filterMonth', 'filterProject',
+            'filterYear', 'filterMonth', 'filterProject', 
             'dynamicChartTitle', 'phaseDocuments',
             'qaRecentDocs', 'qaRecentOpen', 'qaConfidential', 'qaHandover',
             'aiImpact', 'trendingKeywords'
@@ -297,7 +316,6 @@ class DashboardController extends Controller
         $query = $request->input('q', '');
         $results = [];
 
-        // Dummy search logic based on keyword (menggunakan dummy di blade yang anda kirim)
         if (!empty($query)) {
             $results = [
                 ['title' => 'Project_Charter_RDMP_Balikpapan_Final.pdf', 'project' => 'RDMP RU V Balikpapan', 'category' => 'Project Document'],
@@ -314,7 +332,6 @@ class DashboardController extends Controller
     // =========================================================================
     public function chatAi()
     {
-        // Parameter untuk membuat Chat AI terlihat mengerti dashboard
         $kpiData = [
             'total_documents' => 785420,
             'document_project' => 589065,
@@ -330,8 +347,6 @@ class DashboardController extends Controller
     public function previewDocument(Request $request)
     {
         $docName = $request->input('doc', 'Unknown_Document.pdf');
-        
-        // Ekstrak Metadata (Dummy untuk tampilan Preview UI Anda)
         $ext = pathinfo($docName, PATHINFO_EXTENSION) ?: 'pdf';
         
         $metadata = [
