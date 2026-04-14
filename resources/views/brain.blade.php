@@ -131,7 +131,7 @@
                         </div>
                         <div class="relative z-10 flex-grow text-right text-white">
                             <h3 class="text-3xl font-black leading-none tracking-tight">{{ number_format($kpiData['active_users_30d']) }}</h3>
-                            <p class="text-[11px] font-bold tracking-widest mt-1 text-white/90 uppercase">Active (30d)</p>
+                            <p class="text-[11px] font-bold tracking-widest mt-1 text-white/90 uppercase">Active Users (30d)</p>
                         </div>
                     </div>
                 </div>
@@ -195,7 +195,7 @@
                             <p class="text-xs text-orange-600 font-black uppercase tracking-wider flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
                                 Trending Searches
-                                <span class="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded shadow-sm normal-case">Live Updates</span>
+                                <span class="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded shadow-sm normal-case">Last 30 Days</span>
                             </p>
                             <div class="flex items-center gap-2">
                                 <button onclick="exportTrendingData()" class="text-orange-500 hover:text-orange-700 bg-white hover:bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition flex items-center gap-1 cursor-pointer">
@@ -238,13 +238,13 @@
                 </form>
 
                 <div class="grid grid-cols-12 gap-5 mt-4">
-                    <div class="col-span-5 bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col min-h-[500px] chart-wrapper relative">
+                    <div class="col-span-5 bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col min-h-[450px] chart-wrapper relative">
                         <div class="mb-3 flex justify-between items-start">
                             <div>
-                                <h4 class="font-bold text-gray-800 text-sm">Total Document per Project <span class="text-blue-600 ml-1">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1">|</span> <span id="timeTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
-                                <p class="text-[10px] text-gray-400">Total volume based on selected period</p>
+                                <h4 class="font-bold text-gray-800 text-sm">Document per Project <span class="text-blue-600 ml-1">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1">|</span> <span id="timeTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
+                                <p class="text-[10px] text-gray-400"></p>
                             </div>
-                            <button onclick="toggleProjectChart()" id="btnProject" class="text-[10px] font-bold text-blue-600 hover:bg-blue-50 px-2 py-1 rounded border border-blue-100 transition cursor-pointer shrink-0">View All</button>
+                            <button onclick="toggleProjectChart()" id="btnProject" class="text-[10px] font-bold text-blue-600 hover:bg-blue-50 px-2 py-1 rounded border border-blue-100 transition cursor-pointer shrink-0">View All Projects</button>
                         </div>
                         <div id="chartProject" class="flex-grow w-full min-h-0 transition-opacity duration-300"></div>
                     </div>
@@ -252,10 +252,10 @@
                     <div class="col-span-7 bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col min-h-[500px] chart-wrapper relative">
                         <div class="mb-3 flex justify-between items-start shrink-0">
                             <div>
-                                <h4 class="font-bold text-gray-800 text-sm">Document Upload Trend <span class="text-orange-600 ml-1">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1">|</span> <span id="timeTrendTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
-                                <p class="text-[10px] text-gray-400">Vertical Grouped Column (Scroll horizontally)</p>
+                                <h4 class="font-bold text-gray-800 text-sm">Document Per Month <span class="text-orange-600 ml-1">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1">|</span> <span id="timeTrendTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
+                                <p class="text-[10px] text-gray-400"></p>
                             </div>
-                            <button onclick="toggleTrendChart()" id="btnTrend" class="text-[10px] font-bold text-blue-600 hover:bg-blue-50 px-2 py-1 rounded border border-blue-100 transition cursor-pointer shrink-0">View All Trends</button>
+                            <button onclick="toggleTrendChart()" id="btnTrend" class="text-[10px] font-bold text-blue-600 hover:bg-blue-50 px-2 py-1 rounded border border-blue-100 transition cursor-pointer shrink-0">View All Projects</button>
                         </div>
                         <div id="trendChartWrapper" class="w-full overflow-x-auto custom-scrollbar flex-grow pb-2 mt-2">
                             <div id="chartTrend" class="min-h-full transition-opacity duration-300"></div>
