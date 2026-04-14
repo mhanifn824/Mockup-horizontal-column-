@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BRAIN Executive Dashboard</title>
+    <title>Revamp BRAIN Document Dashboard1</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -76,14 +77,7 @@
                 <div class="text-xs text-gray-500 font-semibold mt-1">Document / <span class="text-slate-800 font-bold">Dashboard</span></div>
             </div>
             <div class="flex items-center gap-5">
-                <div class="hidden lg:flex items-center gap-2 bg-green-50 border border-green-200 px-3 py-1.5 rounded-full shadow-sm">
-                    <span class="relative flex h-2.5 w-2.5">
-                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-600"></span>
-                    </span>
-                    <span class="text-[11px] font-black text-green-800 tracking-wider"><span id="live-online-counter">42</span> ONLINE</span>
-                </div>
-                <div class="text-right hidden md:block border-l border-gray-200 pl-5">
+                <div class="text-right hidden md:block">
                     <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-0.5">Welcome Back,</div>
                     <div class="text-sm font-black text-gray-800">Muhammad Hanif Naufal</div>
                 </div>
@@ -164,7 +158,7 @@
                             <thead class="text-[12px] text-gray-500 uppercase font-black border-b border-gray-200 bg-gray-50/50">
                                 <tr>
                                     <th class="py-2.5 pl-3 w-1/4 rounded-tl-md">User Identity</th>
-                                    <th class="py-2.5 w-36">Action Performed</th>
+                                    <th class="py-2.5 w-40">Action Performed</th>
                                     <th class="py-2.5">Target Details</th>
                                     <th class="py-2.5 text-right pr-3 w-32 rounded-tr-md">Timestamp</th>
                                 </tr>
@@ -244,7 +238,7 @@
                 </form>
 
                 <div class="grid grid-cols-12 gap-5 mt-4">
-                    <div class="col-span-5 bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col h-[500px] chart-wrapper relative">
+                    <div class="col-span-5 bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col min-h-[500px] chart-wrapper relative">
                         <div class="mb-3 flex justify-between items-start">
                             <div>
                                 <h4 class="font-bold text-gray-800 text-sm">Total Document per Project <span class="text-blue-600 ml-1">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1">|</span> <span id="timeTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
@@ -255,7 +249,7 @@
                         <div id="chartProject" class="flex-grow w-full min-h-0 transition-opacity duration-300"></div>
                     </div>
 
-                    <div class="col-span-7 bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col h-[500px] chart-wrapper relative">
+                    <div class="col-span-7 bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col min-h-[500px] chart-wrapper relative">
                         <div class="mb-3 flex justify-between items-start shrink-0">
                             <div>
                                 <h4 class="font-bold text-gray-800 text-sm">Document Upload Trend <span class="text-orange-600 ml-1">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1">|</span> <span id="timeTrendTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
@@ -492,7 +486,6 @@
             document.getElementById('tbody-' + tabName).classList.remove('hidden');
         }
 
-        // FIX HIDE TABLE: Ensures table properly disappears
         function toggleQuickAccess() {
             const content = document.getElementById('quickAccessContent');
             const header = document.getElementById('quickAccessHeader');
@@ -515,7 +508,6 @@
         // ========================================================
         // MODAL/OVERLAY LOGIC (Full Log & Phase Modal)
         // ========================================================
-
         let fullLogDataArray = []; 
 
         function openFullLogModal() {
@@ -537,6 +529,7 @@
             }
             m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); c.classList.remove('scale-95');
         }
+        
         function closeFullLogModal() { 
             const m = document.getElementById('fullLogModal'), c = document.getElementById('fullLogContent'); 
             m.classList.add('opacity-0'); c.classList.add('scale-95'); 
@@ -591,16 +584,9 @@
         // LIVE SIMULATION TRENDING SEARCHES
         // ========================================================
         const enterpriseKeywords = [
-            'HAZOP Balongan Phase 1',
-            'Kontrak EPC Tuban',
-            'P&ID Cilacap Rev A',
-            'Drawing Isometric Area 5',
-            'Budget Plan Q2 2026',
-            'Risk Assessment Dumai',
-            'Vendor List Approved',
-            'Minutes of Meeting Kickoff',
-            'Environmental Screening',
-            'Process Flow Diagram'
+            'HAZOP Balongan Phase 1', 'Kontrak EPC Tuban', 'P&ID Cilacap Rev A',
+            'Drawing Isometric Area 5', 'Budget Plan Q2 2026', 'Risk Assessment Dumai',
+            'Vendor List Approved', 'Minutes of Meeting Kickoff', 'Environmental Screening', 'Process Flow Diagram'
         ];
 
         function updateTrendingSearches() {
@@ -670,7 +656,7 @@
         const getProjectOptions = (names, values, colors) => {
             return {
                 series: [{ name: 'Documents', data: values }],
-                chart: { type: 'bar', height: 420, toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
+                chart: { type: 'bar', height: 560, toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
                 plotOptions: { bar: { borderRadius: 2, horizontal: true, barHeight: '70%', distributed: true, dataLabels: { position: 'top' } } },
                 colors: colors,
                 dataLabels: { enabled: true, textAnchor: 'start', offsetX: 30, style: { fontSize: '12px', colors: ['#1e293b'], fontWeight: 700, fontFamily: 'Inter, sans-serif' }, formatter: function (val) { return val.toLocaleString('id-ID'); }, dropShadow: { enabled: false } },
@@ -686,8 +672,8 @@
             return {
                 series: seriesData,
                 chart: { 
-                    type: 'bar', // Menggunakan Vertical Column sesuai request
-                    height: 420, 
+                    type: 'bar',
+                    height: 520, 
                     stacked: false, 
                     toolbar: { show: false }, 
                     fontFamily: 'Inter, sans-serif', 
@@ -753,7 +739,6 @@
             if(phaseDocumentsData[phaseKey]) {
                 phaseDocumentsData[phaseKey].forEach(doc => {
                     let typeBadge = doc.type === 'PDF' ? `<div class="w-7 h-7 bg-red-100 rounded-lg flex items-center justify-center text-red-600 font-black text-[8px] shrink-0 border border-red-200 shadow-sm">PDF</div>` : (['word', 'docx'].includes(doc.type.toLowerCase()) ? `<div class="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-black text-[8px] shrink-0 border border-blue-200 shadow-sm">DOC</div>` : `<div class="w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center text-green-600 font-black text-[8px] shrink-0 border border-green-200 shadow-sm">XLS</div>`);
-                    // Arahkan ke halaman eksternal preview
                     tbody.innerHTML += `
                         <tr onclick="window.location.href='{{ route('document.preview') }}?doc=' + encodeURIComponent('${doc.doc_name}')" class="border-b border-gray-100 hover:bg-green-50 transition-colors cursor-pointer group">
                             <td class="py-3 pl-6 flex items-center gap-3">${typeBadge}<div><div class="font-bold text-gray-900 text-xs group-hover:text-[#168F4A] transition-colors">${doc.doc_name}</div><div class="text-[9px] text-gray-500 font-bold mt-0.5">${doc.size}</div></div></td>
@@ -768,27 +753,49 @@
         }
         function closePhaseModal() { const m = document.getElementById('phaseModal'), c = document.getElementById('phaseModalContent'); m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => { m.classList.add('hidden'); }, 300); }
 
+        // ========================================================
         // LIVE LOG SIMULATION
+        // ========================================================
         const fakeUsers = [{ name: 'Rizky Ramadhan', initial: 'RR' }, { name: 'Nadia Saphira', initial: 'NS' }, { name: 'Ahmad Fauzi', initial: 'AF' }, { name: 'Dewi Lestari', initial: 'DL' }, { name: 'Bima Sakti', initial: 'BS' }, { name: 'Putri Kusuma', initial: 'PK' }, { name: 'Hendra Gunawan', initial: 'HG' }, { name: 'Andi Wijaya', initial: 'AW' }, { name: 'Siti Nurhaliza', initial: 'SN' }, { name: 'I Putu Borneo', initial: 'IP' }];
+        
+        // 1. ACTION PERFORMED YANG DITAMBAHKAN
         const fakeActions = [
             { label: 'Uploaded', color: 'text-green-700 bg-green-50 border-green-200', avatar: 'bg-green-100 text-green-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />' },
             { label: 'Asked AI', color: 'text-purple-700 bg-purple-50 border-purple-200', avatar: 'bg-purple-100 text-purple-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />' },
             { label: 'Searched', color: 'text-teal-700 bg-teal-50 border-teal-200', avatar: 'bg-teal-100 text-teal-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />' },
             { label: 'Previewed', color: 'text-gray-700 bg-gray-100 border-gray-300', avatar: 'bg-gray-200 text-gray-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />' },
-            { label: 'Updated Metadata', color: 'text-blue-700 bg-blue-50 border-blue-200', avatar: 'bg-blue-100 text-blue-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />' }
+            { label: 'Updated Metadata', color: 'text-blue-700 bg-blue-50 border-blue-200', avatar: 'bg-blue-100 text-blue-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />' },
+            { label: 'Accessed Project Dashboard', color: 'text-orange-700 bg-orange-50 border-orange-200', avatar: 'bg-orange-100 text-orange-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />' },
+            { label: 'Viewed Doc Dashboard', color: 'text-indigo-700 bg-indigo-50 border-indigo-200', avatar: 'bg-indigo-100 text-indigo-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />' },
+            { label: 'Downloaded', color: 'text-emerald-700 bg-emerald-50 border-emerald-200', avatar: 'bg-emerald-100 text-emerald-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />' },
+            { label: 'Exported Document', color: 'text-yellow-700 bg-yellow-50 border-yellow-200', avatar: 'bg-yellow-100 text-yellow-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />' }
         ];
+
+        // 2. TARGET DETAILS YANG SESUAI UNTUK MASING-MASING ACTION
         const fakeTargets = [
-            { doc: 'Drawing_Isometric_Area_2_RevA.pdf', loc: 'Project: RDMP RU V Balikpapan', type: 'file' }, { doc: 'MoM_Weekly_Meeting_EPC_03.docx', loc: 'Project: GRR Tuban', type: 'file' }, { doc: 'P&ID_Cilacap_Rev_FINAL.pdf', loc: 'Project: RFCC Cilacap', type: 'file' }, { doc: 'As-Built_Structure_Foundation.pdf', loc: 'Project: New DHT Dumai', type: 'file' },
-            { doc: 'Prompt: "Cari pasal penalti keterlambatan..."', loc: 'Module: AI Chatbot', type: 'ai' }, { doc: 'Keyword: "Valve Specification OR Piping"', loc: 'Module: Smart Search', type: 'search' }
+            { doc: 'Drawing_Isometric_Area_2_RevA.pdf', loc: 'Project: RDMP RU V Balikpapan', type: 'file' }, 
+            { doc: 'MoM_Weekly_Meeting_EPC_03.docx', loc: 'Project: GRR Tuban', type: 'file' }, 
+            { doc: 'P&ID_Cilacap_Rev_FINAL.pdf', loc: 'Project: RFCC Cilacap', type: 'file' }, 
+            { doc: 'As-Built_Structure_Foundation.pdf', loc: 'Project: New DHT Dumai', type: 'file' },
+            { doc: 'Prompt: "Cari pasal penalti keterlambatan..."', loc: 'Module: AI Chatbot', type: 'ai' }, 
+            { doc: 'Keyword: "Valve Specification OR Piping"', loc: 'Module: Smart Search', type: 'search' },
+            { doc: 'Project Portfolio Overview', loc: 'Module: Project Dashboard', type: 'project_dashboard' },
+            { doc: 'RDMP RU VI Balongan Insight', loc: 'Module: Project Dashboard', type: 'project_dashboard' },
+            { doc: 'Executive Document Inventory', loc: 'Module: Document Inventory', type: 'doc_dashboard' }
         ];
 
         function generateRandomLog(isHistorical = false) {
             const u = fakeUsers[Math.floor(Math.random() * fakeUsers.length)];
             const a = fakeActions[Math.floor(Math.random() * fakeActions.length)];
             let validTargets = [];
+            
+            // 3. LOGIC PENGHUBUNG ACTION DAN TARGET
             if (a.label === 'Asked AI') validTargets = fakeTargets.filter(t => t.type === 'ai');
             else if (a.label === 'Searched') validTargets = fakeTargets.filter(t => t.type === 'search');
-            else validTargets = fakeTargets.filter(t => t.type === 'file');
+            else if (a.label === 'Accessed Project Dashboard') validTargets = fakeTargets.filter(t => t.type === 'project_dashboard');
+            else if (a.label === 'Viewed Doc Dashboard') validTargets = fakeTargets.filter(t => t.type === 'doc_dashboard');
+            else validTargets = fakeTargets.filter(t => t.type === 'file'); // Untuk Uploaded, Previewed, Updated, Downloaded, Exported
+            
             const t = validTargets[Math.floor(Math.random() * validTargets.length)];
             
             let timeStr = 'Just now';
@@ -820,13 +827,15 @@
             const liveTr = document.createElement('tr');
             liveTr.className = 'border-b border-gray-100 hover:bg-green-50 transition-colors animate-new-row group cursor-pointer'; 
             
-            // Arahkan ke halaman eksternal saat file log diklik
-            if(log.action_label !== 'Asked AI' && log.action_label !== 'Searched') {
-                liveTr.onclick = function() { window.location.href = '{{ route('document.preview') }}?doc=' + encodeURIComponent(log.document); };
-            } else if (log.action_label === 'Asked AI') {
+            // 4. ROUTING BERDASARKAN LOG YANG DIKLIK USER
+            if (log.action_label === 'Asked AI') {
                 liveTr.onclick = function() { window.location.href = '{{ route('chat.ai') }}'; };
-            } else {
+            } else if (log.action_label === 'Searched') {
                 liveTr.onclick = function() { window.location.href = '{{ route('smart.search') }}'; };
+            } else if (log.action_label === 'Accessed Project Dashboard' || log.action_label === 'Viewed Doc Dashboard') {
+                liveTr.onclick = function() { window.location.href = '{{ route('dashboard') }}'; };
+            } else {
+                liveTr.onclick = function() { window.location.href = '{{ route('document.preview') }}?doc=' + encodeURIComponent(log.document); };
             }
 
             liveTr.innerHTML = `
@@ -849,18 +858,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            updateTrendingSearches(); // Panggil pertama kali
+            updateTrendingSearches(); 
             for(let i = 0; i < 5; i++) { triggerNewLiveLog(); }
             startLiveSimulation(); 
-            
-            let currentOnline = 42;
-            setInterval(() => {
-                let fluctuation = Math.floor(Math.random() * 6) - 2; 
-                currentOnline += fluctuation;
-                if(currentOnline < 35) currentOnline = 35; 
-                if(currentOnline > 55) currentOnline = 55; 
-                if(document.getElementById('live-online-counter')) document.getElementById('live-online-counter').innerText = currentOnline;
-            }, 3500); 
         });
 
         document.querySelectorAll('a').forEach(link => {
