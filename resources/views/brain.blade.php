@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +13,9 @@
         body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; animation: fadeIn 0.3s ease-in-out; }
         .text-pertamina-blue { color: #005596; }
         .chart-wrapper:not(:hover) .apexcharts-tooltip { opacity: 0 !important; visibility: hidden !important; transition: opacity 0.1s ease; }
-        .apexcharts-tooltip { background: #fff !important; border-color: #e2e8f0 !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important; border-radius: 8px !important; }
+        
+        /* FIX TOOLTIP: Tambahkan pointer-events: auto agar bisa di-scroll isi dalamnya */
+        .apexcharts-tooltip { background: #fff !important; border-color: #e2e8f0 !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important; border-radius: 8px !important; pointer-events: auto !important; }
         .apexcharts-tooltip-title { background: #f8fafc !important; border-bottom: 1px solid #e2e8f0 !important; font-family: 'Inter', sans-serif !important; font-size: 14px !important; font-weight: 800 !important; padding: 12px 16px !important; }
         
         .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -131,7 +132,7 @@
                         </div>
                         <div class="relative z-10 flex-grow text-right text-white">
                             <h3 class="text-3xl font-black leading-none tracking-tight">{{ number_format($kpiData['active_users_30d']) }}</h3>
-                            <p class="text-[11px] font-bold tracking-widest mt-1 text-white/90 uppercase">Active Users (30d)</p>
+                            <p class="text-[11px] font-bold tracking-widest mt-1 text-white/90 uppercase">Active (30d)</p>
                         </div>
                     </div>
                 </div>
@@ -141,16 +142,11 @@
                         <div>
                             <h4 class="font-black text-gray-900 text-base flex items-center gap-2">
                                 Live System Audit Trail 
-                                <span class="relative flex h-2.5 w-2.5">
-                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span>
-                                </span>
                             </h4>
                             <p class="text-[12px] text-gray-500 mt-1 font-medium">Monitoring real-time user activities across BRAIN modules</p>
                         </div>
-                        <button onclick="openFullLogModal()" class="text-[11px] text-blue-700 font-bold hover:bg-blue-600 hover:text-white bg-blue-50 px-4 py-2 rounded-lg border border-blue-200 shadow-sm transition-all flex items-center gap-2 cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                            View Full Log (30 Days)
+                        <button onclick="openFullLogModal()" class="text-[11px] text-blue-700 font-bold hover:bg-blue-600 hover:text-white bg-blue-50 px-4 py-2 rounded-lg transition border border-blue-200 cursor-pointer shadow-sm">
+                            View Full Log
                         </button>
                     </div>
                     <div class="overflow-x-auto overflow-hidden">
@@ -195,7 +191,7 @@
                             <p class="text-xs text-orange-600 font-black uppercase tracking-wider flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
                                 Trending Searches
-                                <span class="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded shadow-sm normal-case">Last 30 Days</span>
+                                <span class="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded shadow-sm normal-case">Live Updates</span>
                             </p>
                             <div class="flex items-center gap-2">
                                 <button onclick="exportTrendingData()" class="text-orange-500 hover:text-orange-700 bg-white hover:bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition flex items-center gap-1 cursor-pointer">
@@ -238,27 +234,27 @@
                 </form>
 
                 <div class="grid grid-cols-12 gap-5 mt-4">
-                    <div class="col-span-5 bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col min-h-[450px] chart-wrapper relative">
+                    <div class="col-span-12 lg:col-span-5 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col chart-wrapper relative">
                         <div class="mb-3 flex justify-between items-start">
                             <div>
-                                <h4 class="font-bold text-gray-800 text-sm">Document per Project <span class="text-blue-600 ml-1">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1">|</span> <span id="timeTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
-                                <p class="text-[10px] text-gray-400"></p>
+                                <h4 class="font-black text-gray-900 text-base">Total Document per Project <span class="text-blue-600 ml-1 font-bold">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1 text-gray-300">|</span> <span id="timeTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
+                                <p class="text-xs text-gray-500 mt-1 font-medium"></p>
                             </div>
-                            <button onclick="toggleProjectChart()" id="btnProject" class="text-[10px] font-bold text-blue-600 hover:bg-blue-50 px-2 py-1 rounded border border-blue-100 transition cursor-pointer shrink-0">View All Projects</button>
+                            <button onclick="toggleProjectChart()" id="btnProject" class="text-[10px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition border border-blue-200 cursor-pointer shadow-sm shrink-0">View All</button>
                         </div>
-                        <div id="chartProject" class="flex-grow w-full min-h-0 transition-opacity duration-300"></div>
+                        <div id="chartProject" class="w-full mt-2 transition-opacity duration-300 flex-grow"></div>
                     </div>
 
-                    <div class="col-span-7 bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col min-h-[500px] chart-wrapper relative">
+                    <div class="col-span-12 lg:col-span-7 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col chart-wrapper relative">
                         <div class="mb-3 flex justify-between items-start shrink-0">
                             <div>
-                                <h4 class="font-bold text-gray-800 text-sm">Document Per Month <span class="text-orange-600 ml-1">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1">|</span> <span id="timeTrendTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
-                                <p class="text-[10px] text-gray-400"></p>
+                                <h4 class="font-black text-gray-900 text-base">Document Upload Trend <span class="text-orange-600 ml-1 font-bold">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1 text-gray-300">|</span> <span id="timeTrendTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
+                                <p class="text-xs text-gray-500 mt-1 font-medium"></p>
                             </div>
-                            <button onclick="toggleTrendChart()" id="btnTrend" class="text-[10px] font-bold text-blue-600 hover:bg-blue-50 px-2 py-1 rounded border border-blue-100 transition cursor-pointer shrink-0">View All Projects</button>
+                            <button onclick="toggleTrendChart()" id="btnTrend" class="text-[10px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition border border-blue-200 cursor-pointer shadow-sm shrink-0">View All Trends</button>
                         </div>
-                        <div id="trendChartWrapper" class="w-full overflow-x-auto custom-scrollbar flex-grow pb-2 mt-2">
-                            <div id="chartTrend" class="min-h-full transition-opacity duration-300"></div>
+                        <div id="trendChartWrapper" class="w-full overflow-x-auto custom-scrollbar pb-2 mt-2 flex-grow">
+                            <div id="chartTrend" class="w-full transition-opacity duration-300"></div>
                         </div>
                     </div>
                 </div>
@@ -471,6 +467,16 @@
 
     <script>
         // ========================================================
+        // 1. TRANSISI CEPAT UNTUK FILTER (TIDAK BERKEDIP)
+        // ========================================================
+        function submitFilter() {
+            document.getElementById('filter-loader').classList.remove('hidden');
+            document.getElementById('main-content').style.opacity = '0.5';
+            document.getElementById('main-content').style.transition = 'opacity 0.2s ease-in-out';
+            setTimeout(() => { document.getElementById('filterForm').submit(); }, 100); 
+        }
+
+        // ========================================================
         // TAB LOGIC & HIDE TABLE
         // ========================================================
         function switchQaTab(tabName) {
@@ -527,13 +533,21 @@
                     </tr>
                 `;
             }
-            m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); c.classList.remove('scale-95');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+            void m.offsetWidth;
+            m.classList.remove('opacity-0');
+            c.classList.remove('scale-95');
         }
         
         function closeFullLogModal() { 
             const m = document.getElementById('fullLogModal'), c = document.getElementById('fullLogContent'); 
-            m.classList.add('opacity-0'); c.classList.add('scale-95'); 
-            setTimeout(() => { m.classList.add('hidden'); }, 300); 
+            m.classList.add('opacity-0');
+            c.classList.add('scale-95'); 
+            setTimeout(() => { 
+                m.classList.remove('flex');
+                m.classList.add('hidden'); 
+            }, 300); 
         }
 
         function exportToExcel() {
@@ -656,7 +670,7 @@
         const getProjectOptions = (names, values, colors) => {
             return {
                 series: [{ name: 'Documents', data: values }],
-                chart: { type: 'bar', height: 560, toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
+                chart: { type: 'bar', height: 550, toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
                 plotOptions: { bar: { borderRadius: 2, horizontal: true, barHeight: '70%', distributed: true, dataLabels: { position: 'top' } } },
                 colors: colors,
                 dataLabels: { enabled: true, textAnchor: 'start', offsetX: 30, style: { fontSize: '12px', colors: ['#1e293b'], fontWeight: 700, fontFamily: 'Inter, sans-serif' }, formatter: function (val) { return val.toLocaleString('id-ID'); }, dropShadow: { enabled: false } },
@@ -673,7 +687,7 @@
                 series: seriesData,
                 chart: { 
                     type: 'bar',
-                    height: 520, 
+                    height: 480, 
                     stacked: false, 
                     toolbar: { show: false }, 
                     fontFamily: 'Inter, sans-serif', 
@@ -688,7 +702,7 @@
                 yaxis: { labels: { formatter: val => (val >= 1000 ? (val/1000).toFixed(0)+'k' : val), style: { fontSize: '10px', colors: '#94a3b8' } } },
                 legend: { position: 'bottom', horizontalAlign: 'center', fontSize: '11px', markers: { radius: 10 }, itemMargin: { horizontal: 10, vertical: 5 }, offsetY: -10 },
                 grid: { borderColor: '#f1f5f9', strokeDashArray: 3, padding: { bottom: 30, left: 10, right: 10 } },
-                tooltip: { theme: 'light', shared: true, intersect: false, fixed: { enabled: false }, custom: function({series, seriesIndex, dataPointIndex, w}) { if (dataPointIndex < 0 || dataPointIndex >= tooltipDates.length) return null; let fullDateTitle = tooltipDates[dataPointIndex]; let totalVal = 0; let dailyData = []; w.config.series.forEach((s, i) => { if(s.data && s.data[dataPointIndex] > 0) { totalVal += s.data[dataPointIndex]; dailyData.push({ name: s.name, val: s.data[dataPointIndex], color: w.config.colors[i] }); }}); dailyData.sort((a, b) => b.val - a.val); let tooltipList = ""; dailyData.forEach(item => { tooltipList += `<div class="flex justify-between items-center mb-1.5 text-xs"><div class="flex items-center gap-2 overflow-hidden w-[240px]"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: ${item.color}"></span><span class="text-gray-700 truncate leading-tight font-medium" title="${item.name}">${item.name}</span></div><span class="font-bold text-gray-800 text-xs">${item.val.toLocaleString('id-ID')}</span></div>`; }); return `<div class="bg-white/95 backdrop-blur-sm border border-gray-300 shadow-xl rounded-lg p-4 min-w-[320px]"><div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-3 pb-2 border-b border-gray-100 flex justify-between items-center"><span>Time Period</span><span class="text-gray-800 font-bold">📅 ${fullDateTitle}</span></div><div class="mb-3">${tooltipList}</div><div class="border-t border-gray-200 pt-2 flex justify-between items-center"><span class="text-[10px] text-gray-500 uppercase font-bold">Total Aggregated</span><span class="text-xl font-black text-slate-800">${totalVal.toLocaleString('id-ID')}</span></div></div>`; } }
+                tooltip: { theme: 'light', shared: true, intersect: false, fixed: { enabled: false }, custom: function({series, seriesIndex, dataPointIndex, w}) { if (dataPointIndex < 0 || dataPointIndex >= tooltipDates.length) return null; let fullDateTitle = tooltipDates[dataPointIndex]; let totalVal = 0; let dailyData = []; w.config.series.forEach((s, i) => { if(s.data && s.data[dataPointIndex] > 0) { totalVal += s.data[dataPointIndex]; dailyData.push({ name: s.name, val: s.data[dataPointIndex], color: w.config.colors[i] }); }}); dailyData.sort((a, b) => b.val - a.val); let tooltipList = ""; dailyData.forEach(item => { tooltipList += `<div class="flex justify-between items-center mb-1.5 text-xs"><div class="flex items-center gap-2 overflow-hidden w-[240px]"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: ${item.color}"></span><span class="text-gray-700 truncate leading-tight font-medium" title="${item.name}">${item.name}</span></div><span class="font-bold text-gray-800 text-xs">${item.val.toLocaleString('id-ID')}</span></div>`; }); return `<div class="bg-white/95 backdrop-blur-sm border border-gray-300 shadow-xl rounded-lg p-4 min-w-[400px]"><div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-3 pb-2 border-b border-gray-100 flex justify-between items-center"><span>Time Period</span><span class="text-gray-800 font-bold">📅 ${fullDateTitle}</span></div><div class="mb-3 max-h-[260px] overflow-y-auto custom-scrollbar pr-2">${tooltipList}</div><div class="border-t border-gray-200 pt-2 flex justify-between items-center"><span class="text-[10px] text-gray-500 uppercase font-bold">Total Aggregated</span><span class="text-xl font-black text-slate-800">${totalVal.toLocaleString('id-ID')}</span></div></div>`; } }
             };
         };
 
@@ -739,6 +753,7 @@
             if(phaseDocumentsData[phaseKey]) {
                 phaseDocumentsData[phaseKey].forEach(doc => {
                     let typeBadge = doc.type === 'PDF' ? `<div class="w-7 h-7 bg-red-100 rounded-lg flex items-center justify-center text-red-600 font-black text-[8px] shrink-0 border border-red-200 shadow-sm">PDF</div>` : (['word', 'docx'].includes(doc.type.toLowerCase()) ? `<div class="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-black text-[8px] shrink-0 border border-blue-200 shadow-sm">DOC</div>` : `<div class="w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center text-green-600 font-black text-[8px] shrink-0 border border-green-200 shadow-sm">XLS</div>`);
+                    // Arahkan ke halaman eksternal preview
                     tbody.innerHTML += `
                         <tr onclick="window.location.href='{{ route('document.preview') }}?doc=' + encodeURIComponent('${doc.doc_name}')" class="border-b border-gray-100 hover:bg-green-50 transition-colors cursor-pointer group">
                             <td class="py-3 pl-6 flex items-center gap-3">${typeBadge}<div><div class="font-bold text-gray-900 text-xs group-hover:text-[#168F4A] transition-colors">${doc.doc_name}</div><div class="text-[9px] text-gray-500 font-bold mt-0.5">${doc.size}</div></div></td>
@@ -749,16 +764,25 @@
                     `;
                 });
             } else { tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-gray-500 font-medium text-xs">No records available for this phase yet.</td></tr>`; }
-            m.classList.remove('hidden'); void m.offsetWidth; m.classList.remove('opacity-0'); c.classList.remove('scale-95');
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+            void m.offsetWidth;
+            m.classList.remove('opacity-0');
+            c.classList.remove('scale-95');
         }
-        function closePhaseModal() { const m = document.getElementById('phaseModal'), c = document.getElementById('phaseModalContent'); m.classList.add('opacity-0'); c.classList.add('scale-95'); setTimeout(() => { m.classList.add('hidden'); }, 300); }
+        function closePhaseModal() { 
+            const m = document.getElementById('phaseModal'), c = document.getElementById('phaseModalContent'); 
+            m.classList.add('opacity-0'); 
+            c.classList.add('scale-95'); 
+            setTimeout(() => { 
+                m.classList.remove('flex');
+                m.classList.add('hidden'); 
+            }, 300); 
+        }
 
-        // ========================================================
         // LIVE LOG SIMULATION
-        // ========================================================
         const fakeUsers = [{ name: 'Rizky Ramadhan', initial: 'RR' }, { name: 'Nadia Saphira', initial: 'NS' }, { name: 'Ahmad Fauzi', initial: 'AF' }, { name: 'Dewi Lestari', initial: 'DL' }, { name: 'Bima Sakti', initial: 'BS' }, { name: 'Putri Kusuma', initial: 'PK' }, { name: 'Hendra Gunawan', initial: 'HG' }, { name: 'Andi Wijaya', initial: 'AW' }, { name: 'Siti Nurhaliza', initial: 'SN' }, { name: 'I Putu Borneo', initial: 'IP' }];
         
-        // 1. ACTION PERFORMED YANG DITAMBAHKAN
         const fakeActions = [
             { label: 'Uploaded', color: 'text-green-700 bg-green-50 border-green-200', avatar: 'bg-green-100 text-green-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />' },
             { label: 'Asked AI', color: 'text-purple-700 bg-purple-50 border-purple-200', avatar: 'bg-purple-100 text-purple-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />' },
@@ -771,14 +795,17 @@
             { label: 'Exported Document', color: 'text-yellow-700 bg-yellow-50 border-yellow-200', avatar: 'bg-yellow-100 text-yellow-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />' }
         ];
 
-        // 2. TARGET DETAILS YANG SESUAI UNTUK MASING-MASING ACTION
         const fakeTargets = [
-            { doc: 'Drawing_Isometric_Area_2_RevA.pdf', loc: 'Project: RDMP RU V Balikpapan', type: 'file' }, 
-            { doc: 'MoM_Weekly_Meeting_EPC_03.docx', loc: 'Project: GRR Tuban', type: 'file' }, 
-            { doc: 'P&ID_Cilacap_Rev_FINAL.pdf', loc: 'Project: RFCC Cilacap', type: 'file' }, 
-            { doc: 'As-Built_Structure_Foundation.pdf', loc: 'Project: New DHT Dumai', type: 'file' },
-            { doc: 'Prompt: "Cari pasal penalti keterlambatan..."', loc: 'Module: AI Chatbot', type: 'ai' }, 
-            { doc: 'Keyword: "Valve Specification OR Piping"', loc: 'Module: Smart Search', type: 'search' },
+            { doc: 'Drawing Isometric Area 2 RevA.pdf', loc: 'Project: RDMP RU V Balikpapan', type: 'file' }, 
+            { doc: 'MoM Weekly Meeting EPC 03.docx', loc: 'Project: GRR Tuban', type: 'file' }, 
+            { doc: 'P&ID Cilacap Rev FINAL.pdf', loc: 'Project: RFCC Cilacap', type: 'file' }, 
+            { doc: 'As-Built Structure Foundation.pdf', loc: 'Project: New DHT Dumai', type: 'file' },
+            { doc: 'Rangkuman dokumen EPC Tuban', loc: 'Module: AI Chatbot', type: 'ai' }, 
+            { doc: 'Poin risiko utama proyek RU V', loc: 'Module: AI Chatbot', type: 'ai' },
+            { doc: 'Cari pasal penalti keterlambatan', loc: 'Module: AI Chatbot', type: 'ai' }, 
+            { doc: 'Valve Specification AND Piping', loc: 'Module: Smart Search', type: 'search' },
+            { doc: 'HAZOP Balongan Phase 1', loc: 'Module: Smart Search', type: 'search' },
+            { doc: 'Kontrak EPC Tuban', loc: 'Module: Smart Search', type: 'search' },
             { doc: 'Project Portfolio Overview', loc: 'Module: Project Dashboard', type: 'project_dashboard' },
             { doc: 'RDMP RU VI Balongan Insight', loc: 'Module: Project Dashboard', type: 'project_dashboard' },
             { doc: 'Executive Document Inventory', loc: 'Module: Document Inventory', type: 'doc_dashboard' }
@@ -789,12 +816,11 @@
             const a = fakeActions[Math.floor(Math.random() * fakeActions.length)];
             let validTargets = [];
             
-            // 3. LOGIC PENGHUBUNG ACTION DAN TARGET
             if (a.label === 'Asked AI') validTargets = fakeTargets.filter(t => t.type === 'ai');
             else if (a.label === 'Searched') validTargets = fakeTargets.filter(t => t.type === 'search');
             else if (a.label === 'Accessed Project Dashboard') validTargets = fakeTargets.filter(t => t.type === 'project_dashboard');
             else if (a.label === 'Viewed Doc Dashboard') validTargets = fakeTargets.filter(t => t.type === 'doc_dashboard');
-            else validTargets = fakeTargets.filter(t => t.type === 'file'); // Untuk Uploaded, Previewed, Updated, Downloaded, Exported
+            else validTargets = fakeTargets.filter(t => t.type === 'file'); 
             
             const t = validTargets[Math.floor(Math.random() * validTargets.length)];
             
@@ -827,7 +853,6 @@
             const liveTr = document.createElement('tr');
             liveTr.className = 'border-b border-gray-100 hover:bg-green-50 transition-colors animate-new-row group cursor-pointer'; 
             
-            // 4. ROUTING BERDASARKAN LOG YANG DIKLIK USER
             if (log.action_label === 'Asked AI') {
                 liveTr.onclick = function() { window.location.href = '{{ route('chat.ai') }}'; };
             } else if (log.action_label === 'Searched') {
