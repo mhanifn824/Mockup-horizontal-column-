@@ -146,7 +146,7 @@
                             <p class="text-[12px] text-gray-500 mt-1 font-medium">Monitoring real-time user activities across BRAIN modules</p>
                         </div>
                         <button onclick="openFullLogModal()" class="text-[11px] text-blue-700 font-bold hover:bg-blue-600 hover:text-white bg-blue-50 px-4 py-2 rounded-lg transition border border-blue-200 cursor-pointer shadow-sm">
-                            View Full Log
+                            View Full Log (Last 30 Days)
                         </button>
                     </div>
                     <div class="overflow-x-auto overflow-hidden">
@@ -191,7 +191,7 @@
                             <p class="text-xs text-orange-600 font-black uppercase tracking-wider flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
                                 Trending Searches
-                                <span class="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded shadow-sm normal-case">Live Updates</span>
+                                <span class="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded shadow-sm normal-case">Last 30 Days</span>
                             </p>
                             <div class="flex items-center gap-2">
                                 <button onclick="exportTrendingData()" class="text-orange-500 hover:text-orange-700 bg-white hover:bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-sm transition flex items-center gap-1 cursor-pointer">
@@ -237,10 +237,10 @@
                     <div class="col-span-12 lg:col-span-5 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col chart-wrapper relative">
                         <div class="mb-3 flex justify-between items-start">
                             <div>
-                                <h4 class="font-black text-gray-900 text-base">Total Document per Project <span class="text-blue-600 ml-1 font-bold">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1 text-gray-300">|</span> <span id="timeTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
+                                <h4 class="font-black text-gray-900 text-base">Document per Project <span class="text-blue-600 ml-1 font-bold">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1 text-gray-300">|</span> <span id="timeTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
                                 <p class="text-xs text-gray-500 mt-1 font-medium"></p>
                             </div>
-                            <button onclick="toggleProjectChart()" id="btnProject" class="text-[10px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition border border-blue-200 cursor-pointer shadow-sm shrink-0">View All</button>
+                            <button onclick="toggleProjectChart()" id="btnProject" class="text-[10px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition border border-blue-200 cursor-pointer shadow-sm shrink-0">View All Projects</button>
                         </div>
                         <div id="chartProject" class="w-full mt-2 transition-opacity duration-300 flex-grow"></div>
                     </div>
@@ -248,10 +248,10 @@
                     <div class="col-span-12 lg:col-span-7 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col chart-wrapper relative">
                         <div class="mb-3 flex justify-between items-start shrink-0">
                             <div>
-                                <h4 class="font-black text-gray-900 text-base">Document Upload Trend <span class="text-orange-600 ml-1 font-bold">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1 text-gray-300">|</span> <span id="timeTrendTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
+                                <h4 class="font-black text-gray-900 text-base">Document per Month<span class="text-orange-600 ml-1 font-bold">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1 text-gray-300">|</span> <span id="timeTrendTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
                                 <p class="text-xs text-gray-500 mt-1 font-medium"></p>
                             </div>
-                            <button onclick="toggleTrendChart()" id="btnTrend" class="text-[10px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition border border-blue-200 cursor-pointer shadow-sm shrink-0">View All Trends</button>
+                            <button onclick="toggleTrendChart()" id="btnTrend" class="text-[10px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition border border-blue-200 cursor-pointer shadow-sm shrink-0">View All Projects</button>
                         </div>
                         <div id="trendChartWrapper" class="w-full overflow-x-auto custom-scrollbar pb-2 mt-2 flex-grow">
                             <div id="chartTrend" class="w-full transition-opacity duration-300"></div>
@@ -670,7 +670,8 @@
         const getProjectOptions = (names, values, colors) => {
             return {
                 series: [{ name: 'Documents', data: values }],
-                chart: { type: 'bar', height: 550, toolbar: { show: false }, fontFamily: 'Inter, sans-serif' },
+                chart: { type: 'bar', height: 550, toolbar: { show: true },tools: {
+                download: true },   fontFamily: 'Inter, sans-serif' },
                 plotOptions: { bar: { borderRadius: 2, horizontal: true, barHeight: '70%', distributed: true, dataLabels: { position: 'top' } } },
                 colors: colors,
                 dataLabels: { enabled: true, textAnchor: 'start', offsetX: 30, style: { fontSize: '12px', colors: ['#1e293b'], fontWeight: 700, fontFamily: 'Inter, sans-serif' }, formatter: function (val) { return val.toLocaleString('id-ID'); }, dropShadow: { enabled: false } },
@@ -689,7 +690,7 @@
                     type: 'bar',
                     height: 480, 
                     stacked: false, 
-                    toolbar: { show: false }, 
+                    toolbar: { show: true, tools: { download: true } }, 
                     fontFamily: 'Inter, sans-serif', 
                     zoom: { enabled: false } 
                 },
@@ -807,8 +808,8 @@
             { doc: 'HAZOP Balongan Phase 1', loc: 'Module: Smart Search', type: 'search' },
             { doc: 'Kontrak EPC Tuban', loc: 'Module: Smart Search', type: 'search' },
             { doc: 'Project Portfolio Overview', loc: 'Module: Project Dashboard', type: 'project_dashboard' },
-            { doc: 'RDMP RU VI Balongan Insight', loc: 'Module: Project Dashboard', type: 'project_dashboard' },
-            { doc: 'Executive Document Inventory', loc: 'Module: Document Inventory', type: 'doc_dashboard' }
+            { doc: 'Project Dashboard PIPMS', loc: 'Module: Project Dashboard', type: 'project_dashboard' },
+            { doc: 'Document Inventory', loc: 'Module: Document Inventory', type: 'doc_dashboard' }
         ];
 
         function generateRandomLog(isHistorical = false) {
