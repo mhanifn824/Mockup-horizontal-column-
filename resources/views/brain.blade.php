@@ -105,7 +105,7 @@
                         </div>
                         <div class="relative z-10 flex-grow text-right text-white">
                             <h3 class="text-3xl font-black leading-none tracking-tight">{{ number_format($kpiData['document_project']) }}</h3>
-                            <p class="text-[11px] font-bold tracking-widest mt-1 text-white/90 uppercase">Project Docs</p>
+                            <p class="text-[11px] font-bold tracking-widest mt-1 text-white/90 uppercase">Document Project</p>
                         </div>
                     </div>
                     <div class="bg-gradient-to-br from-[#5b7cce] to-[#3a589e] p-5 rounded-2xl shadow-md relative overflow-hidden flex items-center h-28 hover:shadow-xl transition-shadow">
@@ -114,7 +114,7 @@
                         </div>
                         <div class="relative z-10 flex-grow text-right text-white">
                             <h3 class="text-3xl font-black leading-none tracking-tight">{{ number_format($kpiData['document_fungsi']) }}</h3>
-                            <p class="text-[11px] font-bold tracking-widest mt-1 text-white/90 uppercase">Fungsi Docs</p>
+                            <p class="text-[11px] font-bold tracking-widest mt-1 text-white/90 uppercase">Document Fungsi</p>
                         </div>
                     </div>
                     <div class="bg-gradient-to-br from-[#a5c6c6] to-[#7ea4a4] p-5 rounded-2xl shadow-md relative overflow-hidden flex items-center h-28 hover:shadow-xl transition-shadow">
