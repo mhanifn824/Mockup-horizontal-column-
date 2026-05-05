@@ -259,8 +259,13 @@
                     </div>
                 </div>
 
-                <div class="mt-8 mb-4">
-                    <h4 class="font-black text-gray-900 text-base">Project Lifecycle Documents</h4>
+               <div class="mt-8 mb-4">
+                    <h4 class="font-black text-gray-900 text-base flex items-center gap-2">
+                        Project Lifecycle Documents
+                        <span class="text-blue-700 ml-1 font-bold text-s bg-blue-50 px-2 py-0.5 rounded-lg border border-blue-200 shadow-sm">
+                            ({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1 text-blue-300">|</span> {{ $dynamicChartTitle }})
+                        </span>
+                    </h4>
                     <p class="text-xs text-gray-500 mt-1 font-medium">Total synchronized documents grouped by project execution phase.</p>
                 </div>
                 <div class="grid grid-cols-5 gap-4 mb-6">
