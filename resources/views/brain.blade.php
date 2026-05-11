@@ -787,7 +787,7 @@
             const timeLabel = timeLabelElement ? timeLabelElement.innerText : 'Current Period';
             const filterLabel = proj === 'ALL' ? 'All Projects' : proj;
             document.getElementById('projectChartTitle').innerHTML = `Document per Project <span class="text-blue-600 ml-1 font-bold">(${filterLabel} <span class="mx-1 text-gray-300">|</span> <span id="timeTitleLabel">${timeLabel}</span>)</span>`;
-            document.getElementById('projectChartSubtitle').innerHTML = `Total volume based on selected period. <span class="text-blue-500 font-bold inline-block ml-1">💡 Click a bar to drill-down!</span>`;
+            document.getElementById('projectChartSubtitle').innerHTML = `<span class="text-blue-500 font-bold inline-block ml-1">💡 Click a bar to drill-down!</span>`;
         }
 
         const initialTrendSeriesCount = @json($waveSeries).length;
