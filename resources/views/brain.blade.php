@@ -237,10 +237,15 @@
                     <div class="col-span-12 lg:col-span-5 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col chart-wrapper relative">
                         <div class="mb-3 flex justify-between items-start">
                             <div>
-                                <h4 class="font-black text-gray-900 text-base">Document per Project <span class="text-blue-600 ml-1 font-bold">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1 text-gray-300">|</span> <span id="timeTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
-                                <p class="text-xs text-gray-500 mt-1 font-medium"></p>
+                                <h4 class="font-black text-gray-900 text-base" id="projectChartTitle">Document per Project <span class="text-blue-600 ml-1 font-bold">({{ $filterProject == 'ALL' ? 'All Projects' : $filterProject }} <span class="mx-1 text-gray-300">|</span> <span id="timeTitleLabel">{{ $dynamicChartTitle }}</span>)</span></h4>
+                                <p class="text-xs text-gray-500 mt-1 font-medium" id="projectChartSubtitle">Total volume based on selected period. <span class="text-blue-500 font-bold inline-block ml-1">💡 Click a bar to drill-down!</span></p>
                             </div>
-                            <button onclick="toggleProjectChart()" id="btnProject" class="text-[10px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition border border-blue-200 cursor-pointer shadow-sm shrink-0">View All Projects</button>
+                            <div class="flex items-center gap-2">
+                                <button onclick="backToProjects()" id="btnBackProject" class="hidden text-[10px] font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition border border-gray-300 cursor-pointer shadow-sm shrink-0 flex items-center gap-1">
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg> Back
+                                </button>
+                                <button onclick="toggleProjectChart()" id="btnProject" class="text-[10px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition border border-blue-200 cursor-pointer shadow-sm shrink-0">View All Projects</button>
+                            </div>
                         </div>
                         <div id="chartProject" class="w-full mt-2 transition-opacity duration-300 flex-grow"></div>
                     </div>
@@ -475,10 +480,7 @@
         // 1. TRANSISI CEPAT UNTUK FILTER (TIDAK BERKEDIP)
         // ========================================================
         function submitFilter() {
-            document.getElementById('filter-loader').classList.remove('hidden');
-            document.getElementById('main-content').style.opacity = '0.5';
-            document.getElementById('main-content').style.transition = 'opacity 0.2s ease-in-out';
-            setTimeout(() => { document.getElementById('filterForm').submit(); }, 100); 
+            document.getElementById('filterForm').submit(); 
         }
 
         // ========================================================
@@ -652,6 +654,9 @@
         
         const masterProjectData = fullProjectNames.map((name, index) => ({ name: name, value: fullProjectValues[index], color: fullProjectColors[index] }));
         
+        const disciplineData = @json($disciplineData ?? []);
+        let isDrillDownMode = false;
+
         let projectChartInstance = null; let trendChartInstance = null;
         let isProjectExpanded = false; let isTrendExpanded = false;
 
@@ -675,16 +680,33 @@
         const getProjectOptions = (names, values, colors) => {
             return {
                 series: [{ name: 'Documents', data: values }],
-                chart: { type: 'bar', height: 550, toolbar: { show: true },tools: {
-                download: true },   fontFamily: 'Inter, sans-serif' },
+                chart: { 
+                    type: 'bar', height: 380,parentHeightOffset: 0, toolbar: { show: true },tools: { download: true },   fontFamily: 'Inter, sans-serif',
+                    events: {
+                        dataPointSelection: function(event, chartContext, config) {
+                            if(isDrillDownMode) return;
+                            const selectedProject = config.w.globals.labels[config.dataPointIndex];
+                            if(selectedProject && disciplineData[selectedProject]) enterDrillDown(selectedProject);
+                        }
+                    }
+                },
                 plotOptions: { bar: { borderRadius: 2, horizontal: true, barHeight: '70%', distributed: true, dataLabels: { position: 'top' } } },
                 colors: colors,
                 dataLabels: { enabled: true, textAnchor: 'start', offsetX: 30, style: { fontSize: '12px', colors: ['#1e293b'], fontWeight: 700, fontFamily: 'Inter, sans-serif' }, formatter: function (val) { return val.toLocaleString('id-ID'); }, dropShadow: { enabled: false } },
                 xaxis: { categories: names, labels: { show: true, formatter: val => (val >= 1000000 ? (val/1000000).toFixed(1)+'m' : (val/1000).toFixed(0)+'k'), style: { fontSize: '10px', colors: ['#94a3b8'] } }, axisBorder: { show: false }, axisTicks: { show: false } },
                 yaxis: { labels: { style: { fontSize: '12px', fontWeight: 600, fontFamily: 'Inter' }, maxWidth: 180 } },
-                grid: { borderColor: '#f1f5f9', strokeDashArray: 3, padding: { bottom: 20, right: 80, left: 10 }, xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
+                grid: { borderColor: '#f1f5f9', strokeDashArray: 3, padding: { bottom: 0, right: 80, left: 10 }, xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } },
                 legend: { show: false },
-                tooltip: { theme: 'light', fixed: { enabled: false }, custom: function({series, seriesIndex, dataPointIndex, w}) { let val = series[seriesIndex][dataPointIndex]; let label = w.globals.labels[dataPointIndex]; let color = w.config.colors[dataPointIndex]; return `<div class="px-4 py-3 bg-white border border-gray-300 shadow-2xl rounded-lg min-w-[200px]"><div class="text-[10px] text-gray-400 font-bold uppercase mb-1">Project Name</div><div class="flex items-center gap-2 mb-3"><span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${color}"></span><span class="text-xs font-bold text-gray-800 leading-tight">${label}</span></div><div class="border-t border-gray-200 pt-2 flex justify-between items-center"><span class="text-xs text-gray-500 font-semibold">Total Docs</span><span class="text-lg font-black text-slate-800">${val.toLocaleString('id-ID')}</span></div></div>`; } }
+                tooltip: { 
+                    theme: 'light', fixed: { enabled: false }, 
+                    custom: function({series, seriesIndex, dataPointIndex, w}) { 
+                        let val = series[seriesIndex][dataPointIndex]; 
+                        let label = w.globals.labels[dataPointIndex]; 
+                        let color = w.config.colors[dataPointIndex]; 
+                        let entityLabel = isDrillDownMode ? "Discipline" : "Project Name";
+                        return `<div class="px-4 py-3 bg-white border border-gray-300 shadow-2xl rounded-lg min-w-[200px]"><div class="text-[10px] text-gray-400 font-bold uppercase mb-1">${entityLabel}</div><div class="flex items-center gap-2 mb-3"><span class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${color}"></span><span class="text-xs font-bold text-gray-800 leading-tight">${label}</span></div><div class="border-t border-gray-200 pt-2 flex justify-between items-center"><span class="text-xs text-gray-500 font-semibold">Total Docs</span><span class="text-lg font-black text-slate-800">${val.toLocaleString('id-ID')}</span></div></div>`; 
+                    } 
+                }
             };
         };
 
@@ -693,7 +715,7 @@
                 series: seriesData,
                 chart: { 
                     type: 'bar',
-                    height: 480, 
+                    height: 380, 
                     stacked: false, 
                     toolbar: { show: true, tools: { download: true } }, 
                     fontFamily: 'Inter, sans-serif', 
@@ -708,9 +730,65 @@
                 yaxis: { labels: { formatter: val => (val >= 1000 ? (val/1000).toFixed(0)+'k' : val), style: { fontSize: '10px', colors: '#94a3b8' } } },
                 legend: { position: 'bottom', horizontalAlign: 'center', fontSize: '11px', markers: { radius: 10 }, itemMargin: { horizontal: 10, vertical: 5 }, offsetY: -10 },
                 grid: { borderColor: '#f1f5f9', strokeDashArray: 3, padding: { bottom: 30, left: 10, right: 10 } },
-                tooltip: { theme: 'light', shared: true, intersect: false, fixed: { enabled: false }, custom: function({series, seriesIndex, dataPointIndex, w}) { if (dataPointIndex < 0 || dataPointIndex >= tooltipDates.length) return null; let fullDateTitle = tooltipDates[dataPointIndex]; let totalVal = 0; let dailyData = []; w.config.series.forEach((s, i) => { if(s.data && s.data[dataPointIndex] > 0) { totalVal += s.data[dataPointIndex]; dailyData.push({ name: s.name, val: s.data[dataPointIndex], color: w.config.colors[i] }); }}); dailyData.sort((a, b) => b.val - a.val); let tooltipList = ""; dailyData.forEach(item => { tooltipList += `<div class="flex justify-between items-center mb-1.5 text-xs"><div class="flex items-center gap-2 overflow-hidden w-[240px]"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: ${item.color}"></span><span class="text-gray-700 truncate leading-tight font-medium" title="${item.name}">${item.name}</span></div><span class="font-bold text-gray-800 text-xs">${item.val.toLocaleString('id-ID')}</span></div>`; }); return `<div class="bg-white/95 backdrop-blur-sm border border-gray-300 shadow-xl rounded-lg p-4 min-w-[400px]"><div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-3 pb-2 border-b border-gray-100 flex justify-between items-center"><span>Time Period</span><span class="text-gray-800 font-bold">📅 ${fullDateTitle}</span></div><div class="mb-3 max-h-[260px] overflow-y-auto custom-scrollbar pr-2">${tooltipList}</div><div class="border-t border-gray-200 pt-2 flex justify-between items-center"><span class="text-[10px] text-gray-500 uppercase font-bold">Total Aggregated</span><span class="text-xl font-black text-slate-800">${totalVal.toLocaleString('id-ID')}</span></div></div>`; } }
+                tooltip: { 
+                    theme: 'light', shared: true, intersect: false, fixed: { enabled: false }, 
+                    custom: function({series, seriesIndex, dataPointIndex, w}) { 
+                        if (dataPointIndex < 0 || dataPointIndex >= tooltipDates.length) return null; 
+                        let fullDateTitle = tooltipDates[dataPointIndex]; 
+                        let totalVal = 0; let dailyData = []; 
+                        w.config.series.forEach((s, i) => { 
+                            if(s.data && s.data[dataPointIndex] > 0) { 
+                                totalVal += s.data[dataPointIndex]; 
+                                dailyData.push({ name: s.name, val: s.data[dataPointIndex], color: w.config.colors[i] }); 
+                            }
+                        }); 
+                        dailyData.sort((a, b) => b.val - a.val); 
+                        
+                        let displayData = dailyData;
+                        if (dailyData.length > 7) {
+                            displayData = dailyData.slice(0, 7);
+                            let othersVal = dailyData.slice(7).reduce((sum, item) => sum + item.val, 0);
+                            displayData.push({ name: `Others (${dailyData.length - 7} Projects)`, val: othersVal, color: '#CBD5E1' });
+                        }
+
+                        let tooltipList = ""; 
+                        displayData.forEach(item => { 
+                            tooltipList += `<div class="flex justify-between items-center mb-1.5 text-xs"><div class="flex items-center gap-2 overflow-hidden w-[240px]"><span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: ${item.color}"></span><span class="text-gray-700 truncate leading-tight font-medium" title="${item.name}">${item.name}</span></div><span class="font-bold text-gray-800 text-xs">${item.val.toLocaleString('id-ID')}</span></div>`; 
+                        }); 
+                        
+                        return `<div class="bg-white/95 backdrop-blur-sm border border-gray-300 shadow-xl rounded-lg p-4 min-w-[400px]"><div class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-3 pb-2 border-b border-gray-100 flex justify-between items-center"><span>Time Period</span><span class="text-gray-800 font-bold">📅 ${fullDateTitle}</span></div><div class="mb-3 pr-2">${tooltipList}</div><div class="border-t border-gray-200 pt-2 flex justify-between items-center"><span class="text-[10px] text-gray-500 uppercase font-bold">Total Aggregated</span><span class="text-xl font-black text-slate-800">${totalVal.toLocaleString('id-ID')}</span></div></div>`; 
+                    } 
+                }
             };
         };
+
+        function enterDrillDown(projectName) {
+            isDrillDownMode = true; const dData = disciplineData[projectName];
+            projectChartInstance.updateOptions({
+                series: [{ name: 'Documents', data: dData.map(d => d.val) }],
+                xaxis: { categories: dData.map(d => d.name) }, colors: dData.map(d => d.color)
+            });
+            document.getElementById('btnProject').classList.add('hidden'); document.getElementById('btnBackProject').classList.remove('hidden');
+            document.getElementById('projectChartTitle').innerHTML = `Discipline Breakdown: <span class="text-blue-600 ml-1 font-bold">${projectName}</span>`;
+            document.getElementById('projectChartSubtitle').innerHTML = `Showing document distribution across engineering disciplines.`;
+        }
+
+        function backToProjects() {
+            isDrillDownMode = false; const proj = document.getElementById('projectFilter').value;
+            let pData = isProjectExpanded ? [...masterProjectData] : masterProjectData.slice(0, 10);
+            if (proj !== 'ALL') { pData = masterProjectData.filter(p => p.name === proj); if (pData.length === 0) pData = [masterProjectData[0]]; }
+            projectChartInstance.updateOptions({
+                series: [{ name: 'Documents', data: pData.map(p => p.value) }],
+                xaxis: { categories: pData.map(p => p.name) }, colors: pData.map(p => p.color)
+            });
+            document.getElementById('btnProject').classList.remove('hidden'); document.getElementById('btnBackProject').classList.add('hidden');
+            
+            const timeLabelElement = document.getElementById('timeTrendTitleLabel');
+            const timeLabel = timeLabelElement ? timeLabelElement.innerText : 'Current Period';
+            const filterLabel = proj === 'ALL' ? 'All Projects' : proj;
+            document.getElementById('projectChartTitle').innerHTML = `Document per Project <span class="text-blue-600 ml-1 font-bold">(${filterLabel} <span class="mx-1 text-gray-300">|</span> <span id="timeTitleLabel">${timeLabel}</span>)</span>`;
+            document.getElementById('projectChartSubtitle').innerHTML = `Total volume based on selected period. <span class="text-blue-500 font-bold inline-block ml-1">💡 Click a bar to drill-down!</span>`;
+        }
 
         const initialTrendSeriesCount = @json($waveSeries).length;
         const initialCategoryCount = chartCategories.length;
@@ -759,7 +837,6 @@
             if(phaseDocumentsData[phaseKey]) {
                 phaseDocumentsData[phaseKey].forEach(doc => {
                     let typeBadge = doc.type === 'PDF' ? `<div class="w-7 h-7 bg-red-100 rounded-lg flex items-center justify-center text-red-600 font-black text-[8px] shrink-0 border border-red-200 shadow-sm">PDF</div>` : (['word', 'docx'].includes(doc.type.toLowerCase()) ? `<div class="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-black text-[8px] shrink-0 border border-blue-200 shadow-sm">DOC</div>` : `<div class="w-7 h-7 bg-green-100 rounded-lg flex items-center justify-center text-green-600 font-black text-[8px] shrink-0 border border-green-200 shadow-sm">XLS</div>`);
-                    // Arahkan ke halaman eksternal preview
                     tbody.innerHTML += `
                         <tr onclick="window.location.href='{{ route('document.preview') }}?doc=' + encodeURIComponent('${doc.doc_name}')" class="border-b border-gray-100 hover:bg-green-50 transition-colors cursor-pointer group">
                             <td class="py-3 pl-6 flex items-center gap-3">${typeBadge}<div><div class="font-bold text-gray-900 text-xs group-hover:text-[#168F4A] transition-colors">${doc.doc_name}</div><div class="text-[9px] text-gray-500 font-bold mt-0.5">${doc.size}</div></div></td>
@@ -787,55 +864,117 @@
         }
 
         // LIVE LOG SIMULATION
-        const fakeUsers = [{ name: 'Rizky Ramadhan', initial: 'RR' }, { name: 'Nadia Saphira', initial: 'NS' }, { name: 'Ahmad Fauzi', initial: 'AF' }, { name: 'Dewi Lestari', initial: 'DL' }, { name: 'Bima Sakti', initial: 'BS' }, { name: 'Putri Kusuma', initial: 'PK' }, { name: 'Hendra Gunawan', initial: 'HG' }, { name: 'Andi Wijaya', initial: 'AW' }, { name: 'Siti Nurhaliza', initial: 'SN' }, { name: 'I Putu Borneo', initial: 'IP' }];
-        
+        const fakeUsers = [
+            // Engineering & Technical
+            { name: 'Rizky Ramadhan', initial: 'RR' }, { name: 'Nadia Saphira', initial: 'NS' }, 
+            { name: 'Ahmad Fauzi', initial: 'AF' }, { name: 'Dewi Lestari', initial: 'DL' }, 
+            { name: 'Bima Sakti', initial: 'BS' }, { name: 'Putri Kusuma', initial: 'PK' },
+            // Management & Admin
+            { name: 'Hendra Gunawan', initial: 'HG' }, { name: 'Andi Wijaya', initial: 'AW' }, 
+            { name: 'Siti Nurhaliza', initial: 'SN' }, { name: 'I Putu Borneo', initial: 'IP' },
+            { name: 'Bagus Prakoso', initial: 'BP' }, { name: 'Rina Melati', initial: 'RM' },
+            { name: 'Kevin Sanjaya', initial: 'KS' }, { name: 'Maya Indah', initial: 'MI' }
+        ];
+
         const fakeActions = [
-            { label: 'Uploaded', color: 'text-green-700 bg-green-50 border-green-200', avatar: 'bg-green-100 text-green-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />' },
+            // Upload & Create (Green/Emerald)
+            { label: 'Uploaded Project Doc', color: 'text-green-700 bg-green-50 border-green-200', avatar: 'bg-green-100 text-green-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />' },
+            { label: 'Uploaded Fungsi Doc', color: 'text-emerald-700 bg-emerald-50 border-emerald-200', avatar: 'bg-emerald-100 text-emerald-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />' },
+            { label: 'Created Folder', color: 'text-lime-700 bg-lime-50 border-lime-200', avatar: 'bg-lime-100 text-lime-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />' },
+            
+            // AI & Search (Purple/Teal)
             { label: 'Asked AI', color: 'text-purple-700 bg-purple-50 border-purple-200', avatar: 'bg-purple-100 text-purple-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />' },
             { label: 'Searched', color: 'text-teal-700 bg-teal-50 border-teal-200', avatar: 'bg-teal-100 text-teal-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />' },
+            
+            
+            // Interaction & Management (Gray/Blue)
             { label: 'Previewed', color: 'text-gray-700 bg-gray-100 border-gray-300', avatar: 'bg-gray-200 text-gray-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />' },
             { label: 'Updated Metadata', color: 'text-blue-700 bg-blue-50 border-blue-200', avatar: 'bg-blue-100 text-blue-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />' },
+            { label: 'Changed Security Level', color: 'text-red-700 bg-red-50 border-red-200', avatar: 'bg-red-100 text-red-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />' },
+            
+            // Dashboard Access (Orange/Indigo)
             { label: 'Accessed Project Dashboard', color: 'text-orange-700 bg-orange-50 border-orange-200', avatar: 'bg-orange-100 text-orange-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />' },
             { label: 'Viewed Doc Dashboard', color: 'text-indigo-700 bg-indigo-50 border-indigo-200', avatar: 'bg-indigo-100 text-indigo-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />' },
-            { label: 'Downloaded', color: 'text-emerald-700 bg-emerald-50 border-emerald-200', avatar: 'bg-emerald-100 text-emerald-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />' },
-            { label: 'Exported Document', color: 'text-yellow-700 bg-yellow-50 border-yellow-200', avatar: 'bg-yellow-100 text-yellow-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />' }
+            
+            // Download & Export (Yellow/Cyan)
+            { label: 'Downloaded', color: 'text-cyan-700 bg-cyan-50 border-cyan-200', avatar: 'bg-cyan-100 text-cyan-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />' },
+            { label: 'Exported Report', color: 'text-yellow-700 bg-yellow-50 border-yellow-200', avatar: 'bg-yellow-100 text-yellow-700', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />' }
         ];
 
         const fakeTargets = [
-            { doc: 'Drawing Isometric Area 2 RevA.pdf', loc: 'Project: RDMP RU V Balikpapan', type: 'file' }, 
-            { doc: 'MoM Weekly Meeting EPC 03.docx', loc: 'Project: GRR Tuban', type: 'file' }, 
-            { doc: 'P&ID Cilacap Rev FINAL.pdf', loc: 'Project: RFCC Cilacap', type: 'file' }, 
-            { doc: 'As-Built Structure Foundation.pdf', loc: 'Project: New DHT Dumai', type: 'file' },
+            // Engineering & Technical Documents (Project_Doc)
+            { doc: 'Drawing Isometric Area 2 RevA.pdf', loc: 'Project: RDMP RU V Balikpapan', type: 'project_doc' }, 
+            { doc: 'P&ID Cilacap Rev FINAL.pdf', loc: 'Project: RFCC Cilacap', type: 'project_doc' }, 
+            { doc: 'As-Built Structure Foundation.pdf', loc: 'Project: New DHT Dumai', type: 'project_doc' },
+            { doc: 'Process Flow Diagram Unit 32.pdf', loc: 'Project: Revitalisasi RCC RU VI', type: 'project_doc' },
+            { doc: 'Piping Layout Plan Rev 3.dwg', loc: 'Project: GRR Tuban', type: 'project_doc' },
+            { doc: 'Soil Test Report Area C.pdf', loc: 'Project: New Polypropylene Balongan', type: 'project_doc' },
+            { doc: 'Electrical Single Line Diagram.pdf', loc: 'Project: Green Refinery Plaju', type: 'project_doc' },
+            { doc: 'HAZOP Study Report Phase 2.pdf', loc: 'Project: RDMP RU VI Balongan', type: 'project_doc' },
+            
+            // Management & Admin Documents (Fungsi_Doc / Project_Doc)
+            { doc: 'MoM Weekly Meeting EPC 03.docx', loc: 'Project: GRR Tuban', type: 'project_doc' }, 
+            { doc: 'Project Charter Early Works 1.pdf', loc: 'Project: RDMP RU V Early Works', type: 'project_doc' },
+            { doc: 'Budget Plan Q2 2026.xlsx', loc: 'Fungsi: Finance', type: 'fungsi_doc' },
+            { doc: 'Vendor List Approved 2026.xlsx', loc: 'Fungsi: Procurement', type: 'fungsi_doc' },
+            { doc: 'Board Resolution Q1 2026.pdf', loc: 'Fungsi: Legal', type: 'fungsi_doc' },
+            { doc: 'Financial Audit Report.xlsx', loc: 'Fungsi: Audit', type: 'fungsi_doc' },
+            { doc: 'HSE Monthly Report KPI.pdf', loc: 'Fungsi: HSSE', type: 'fungsi_doc' },
+            { doc: 'Contract Addendum Vendor X.pdf', loc: 'Fungsi: Legal', type: 'fungsi_doc' },
+
+            // AI Interaction Targets
             { doc: 'Rangkuman dokumen EPC Tuban', loc: 'Module: AI Chatbot', type: 'ai' }, 
             { doc: 'Poin risiko utama proyek RU V', loc: 'Module: AI Chatbot', type: 'ai' },
             { doc: 'Cari pasal penalti keterlambatan', loc: 'Module: AI Chatbot', type: 'ai' }, 
+            { doc: 'Bandingkan spek P&ID Cilacap vs Dumai', loc: 'Module: AI Chatbot', type: 'ai' }, 
+            { doc: 'Extract tabel budget Q2 2026', loc: 'Module: AI Chatbot', type: 'ai' }, 
+
+            // Smart Search Targets
             { doc: 'Valve Specification AND Piping', loc: 'Module: Smart Search', type: 'search' },
             { doc: 'HAZOP Balongan Phase 1', loc: 'Module: Smart Search', type: 'search' },
             { doc: 'Kontrak EPC Tuban', loc: 'Module: Smart Search', type: 'search' },
+            { doc: '"Pump Failure" OR "Compressor"', loc: 'Module: Smart Search', type: 'search' },
+            { doc: 'Minutes of Meeting Kickoff RDMP', loc: 'Module: Smart Search', type: 'search' },
+
+            // Dashboard & UI Navigation Targets
             { doc: 'Project Portfolio Overview', loc: 'Module: Project Dashboard', type: 'project_dashboard' },
             { doc: 'Project Dashboard PIPMS', loc: 'Module: Project Dashboard', type: 'project_dashboard' },
-            { doc: 'Document Inventory', loc: 'Module: Document Inventory', type: 'doc_dashboard' }
+            { doc: 'Executive Summary Dashboard', loc: 'Module: Project Dashboard', type: 'project_dashboard' },
+            { doc: 'Document Inventory & Lifecycle', loc: 'Module: Document Dashboard', type: 'doc_dashboard' },
+            { doc: 'Monthly Trending Uploads', loc: 'Module: Document Dashboard', type: 'doc_dashboard' }
         ];
 
-        function generateRandomLog(isHistorical = false) {
+       function generateRandomLog(isHistorical = false) {
             const u = fakeUsers[Math.floor(Math.random() * fakeUsers.length)];
             const a = fakeActions[Math.floor(Math.random() * fakeActions.length)];
             let validTargets = [];
             
-            if (a.label === 'Asked AI') validTargets = fakeTargets.filter(t => t.type === 'ai');
-            else if (a.label === 'Searched') validTargets = fakeTargets.filter(t => t.type === 'search');
-            else if (a.label === 'Accessed Project Dashboard') validTargets = fakeTargets.filter(t => t.type === 'project_dashboard');
-            else if (a.label === 'Viewed Doc Dashboard') validTargets = fakeTargets.filter(t => t.type === 'doc_dashboard');
-            else validTargets = fakeTargets.filter(t => t.type === 'file'); 
+            
+            if (a.label === 'Asked AI' || a.label === 'Generated Summary') {
+                validTargets = fakeTargets.filter(t => t.type === 'ai');
+            } else if (a.label === 'Searched') {
+                validTargets = fakeTargets.filter(t => t.type === 'search');
+            } else if (a.label === 'Accessed Project Dashboard') {
+                validTargets = fakeTargets.filter(t => t.type === 'project_dashboard');
+            } else if (a.label === 'Viewed Doc Dashboard') {
+                validTargets = fakeTargets.filter(t => t.type === 'doc_dashboard');
+            } else if (a.label === 'Uploaded Project Doc') {
+                validTargets = fakeTargets.filter(t => t.type === 'project_doc');
+            } else if (a.label === 'Uploaded Fungsi Doc') {
+                validTargets = fakeTargets.filter(t => t.type === 'fungsi_doc');
+            } else {
+                
+                validTargets = fakeTargets.filter(t => t.type === 'project_doc' || t.type === 'fungsi_doc'); 
+            }
             
             const t = validTargets[Math.floor(Math.random() * validTargets.length)];
             
             let timeStr = 'Just now';
             if (isHistorical) {
-                let d = new Date();
-                d.setDate(d.getDate() - Math.floor(Math.random() * 30)); 
+                let d = new Date(); d.setDate(d.getDate() - Math.floor(Math.random() * 30)); 
                 timeStr = d.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}) + ' ' + String(Math.floor(Math.random()*24)).padStart(2, '0') + ':' + String(Math.floor(Math.random()*60)).padStart(2, '0');
             }
+            
             return { user: u.name, initial: u.initial, avatar_color: a.avatar, action_label: a.label, action_color: a.color, document: t.doc, location: t.loc, time: timeStr, icon: a.icon };
         }
 
@@ -844,7 +983,9 @@
 
         function updateAiImpactCounter(type) {
             if(type === 'ai_query') { currentQueries += 1; currentDocsSummarized += Math.floor(Math.random() * 4) + 2; } 
-            else if(type === 'background_growth') { currentQueries += Math.floor(Math.random() * 2); currentDocsSummarized += Math.floor(Math.random() * 2); }
+            else if (type === 'ai_upload') {
+                currentDocsSummarized += 1;
+            }
             if(document.getElementById('dynamic-queries')) document.getElementById('dynamic-queries').innerText = currentQueries.toLocaleString('id-ID');
             if(document.getElementById('dynamic-docs')) document.getElementById('dynamic-docs').innerText = currentDocsSummarized.toLocaleString('id-ID');
         }
@@ -852,7 +993,13 @@
         function triggerNewLiveLog() {
             const log = generateRandomLog();
             const safeTitle = log.document.replace(/"/g, '&quot;'); 
-            if (log.action_label === 'Asked AI' || log.action_label === 'Searched') updateAiImpactCounter('ai_query');
+            
+           
+            if (log.action_label === 'Asked AI' || log.action_label === 'Searched') {
+                updateAiImpactCounter('ai_query');
+            } else if (log.action_label.includes('Uploaded')) {
+                updateAiImpactCounter('ai_upload');
+            }
 
             const liveTbody = document.getElementById('liveAuditTableBody');
             if(!liveTbody) return;
@@ -883,7 +1030,9 @@
             setTimeout(() => {
                 const eventsToTrigger = Math.random() > 0.8 ? 2 : 1; 
                 for(let i=0; i<eventsToTrigger; i++) setTimeout(() => triggerNewLiveLog(), i * 400); 
+                
                 updateAiImpactCounter('background_growth');
+                
                 startLiveSimulation(); 
             }, nextInterval);
         }
