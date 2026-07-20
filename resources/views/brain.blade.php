@@ -812,8 +812,7 @@
             } 
         }
 
-        function toggleTrendChart() { 
-            isTrendExpanded = !isTrendExpanded; 
+        function toggleTrendChart() { vanded = !isTrendExpanded; 
             const btn = document.getElementById('btnTrend'); 
             const currentCategories = trendChartInstance.w.config.xaxis.categories;
             
